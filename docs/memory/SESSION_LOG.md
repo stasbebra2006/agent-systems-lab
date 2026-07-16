@@ -19,3 +19,18 @@
 - Initialized the project as a Git repository on `main`.
 - Created private GitHub repository `stasbebra2006/langgraph-learning` and
   configured it as `origin`.
+
+## 2026-07-16 — Python environment and learning workflow
+
+- Selected the deterministic research-query router as the first LangGraph
+  exercise, with LLM and tool behavior deferred until graph mechanics are
+  understood.
+- Initialized a uv-managed package on Python 3.12 and added LangGraph 1.2.9 with
+  a reproducible lockfile.
+- Reviewed package structure, `pyproject.toml`, `uv.lock`, and the role of
+  `TypedDict` as a LangGraph state schema.
+- Established a learner-driven workflow: introduce one small change at a time,
+  present all imports explicitly, explain requirements versus preferences, and
+  inspect actual code or output before continuing.
+- Left graph implementation for the next session; the next step is to define
+  the first field of `ResearchState` in `graph.py`.
