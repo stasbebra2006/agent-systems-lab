@@ -34,3 +34,17 @@
   inspect actual code or output before continuing.
 - Left graph implementation for the next session; the next step is to define
   the first field of `ResearchState` in `graph.py`.
+
+## 2026-07-21 — First deterministic graph compiled
+
+- Defined typed graph state with required `question` and later-produced
+  `route` and `answer` fields.
+- Implemented deterministic routing plus direct and research placeholder nodes.
+- Connected `START`, conditional branches, and `END`, then compiled the graph.
+- Added an interactive `demo.py` runner, printed the compiled structure as
+  Mermaid syntax, streamed per-node updates, and verified both branches through
+  the package-module command.
+- Confirmed experimentally that this LangGraph version filters unknown state
+  keys but does not enforce `TypedDict` value types at runtime.
+- Deferred automated tests for now; the next milestone is selecting a model
+  provider and introducing one observable LLM-backed node.
