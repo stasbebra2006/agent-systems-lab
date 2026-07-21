@@ -4,8 +4,9 @@ Last updated: 2026-07-21
 
 ## Goal
 
-Learn LangGraph deeply enough to design, implement, debug, and eventually deploy
-reliable stateful agents—not merely reproduce tutorial code.
+Learn enough low-level LangGraph to understand, inspect, and debug reliable
+stateful agents, then apply that foundation through Deep Agents, OpenClaw, and
+NemoClaw in a project suitable for a public GitHub portfolio.
 
 ## Approach
 
@@ -16,23 +17,42 @@ reliable stateful agents—not merely reproduce tutorial code.
   `docs/LEARNING_WORKFLOW.md`.
 - Prefer current official documentation and installed-package behavior when
   older course examples differ.
-- Build low-level concepts explicitly before adopting higher-level shortcuts.
-- Defer long-term memory and deployment until the project needs them.
+- Build a small LangGraph literacy floor explicitly, but do not recreate a
+  large agent framework when a higher-level abstraction already fits.
+- Learn advanced low-level features just in time when Deep Agents, OpenClaw, or
+  NemoClaw exposes a concrete need for them.
+- Treat reproducibility, observability, security boundaries, and public
+  presentation as part of the project rather than end-of-project cleanup.
 
 ## Project direction
 
-The provisional project is a research assistant that can route work, call
-tools, research in parallel, persist conversation state, request human approval,
-and later retain long-term preferences.
+The project will evolve into a safe, inspectable research agent that can plan,
+delegate focused work, preserve evidence, produce useful artifacts, and request
+approval for sensitive operations. The raw LangGraph implementation will remain
+an explanatory foundation; the main showcase should use appropriate higher-level
+frameworks instead of rebuilding their infrastructure.
+
+The intended public narrative is a progression from graph primitives, through
+a useful Deep Agents application, to OpenClaw usage and NemoClaw/OpenShell
+operation with explicit deployment and security tradeoffs.
 
 ## Roadmap
 
-1. Build a deterministic graph: state, nodes, edges, and conditional routing.
-2. Add an LLM and tools: agent loops, tool calls, and termination.
-3. Add state management: reducers, messages, checkpoints, and threads.
-4. Add user control: streaming, interrupts, state edits, and replay.
-5. Add composition: parallel work, subgraphs, and map-reduce.
-6. Add long-term memory and production infrastructure only when useful.
+1. Complete the deterministic foundation: state, nodes, edges, conditional
+   routing, visualization, and streamed updates.
+2. Finish the LangGraph literacy floor: messages and reducers, one model/tool
+   loop with termination, checkpoints and thread IDs, and interrupt/resume.
+3. Build the useful research assistant with Deep Agents, using planning,
+   filesystem context, focused subagents, memory, and human approval where each
+   capability has a clear purpose.
+4. Explore OpenClaw as a separate always-on assistant runtime and create a
+   relevant skill or configuration around the same research workflow.
+5. Operate supported Deep Agents Code and OpenClaw variants through
+   NemoClaw/OpenShell, documenting inference routing, credentials, sandbox
+   policy, and reproducible lifecycle management.
+6. Prepare the repository for public release with a strong README, architecture
+   diagrams, a demo, safe configuration examples, a threat model, and a small
+   behavior/evaluation suite.
 
 For each phase, the completion standard is to explain the mechanism, implement
 it without blindly copying, inspect its runtime state, and identify common
@@ -58,10 +78,13 @@ failure modes.
   point, and automated graph tests have not been added yet.
 - No model provider or credentials are configured, which is intentional for the
   first deterministic graph.
+- The learning scope now intentionally stops short of building a full framework
+  in raw LangGraph. The repository is expected to become a public portfolio
+  demonstration spanning foundations, Deep Agents, OpenClaw, and NemoClaw.
 
 ## Next action
 
-Begin phase 2 by choosing a model provider, adding its integration dependency,
-and replacing one placeholder answer node with a single model call while
-keeping the deterministic router observable. Automated tests are intentionally
-deferred while the graph remains small and both branches are manually verified.
+Introduce message state and reducer semantics with the smallest useful change.
+Then choose a model provider and implement one observable model/tool loop before
+moving on to checkpoints and interrupt/resume. Do not expand the raw LangGraph
+layer into a full research-agent framework.

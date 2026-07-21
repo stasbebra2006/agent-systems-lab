@@ -3,6 +3,16 @@
 A project-driven environment for learning LangGraph by building a useful,
 stateful agent rather than only completing disconnected tutorials.
 
+The project intentionally implements only enough raw LangGraph to make state,
+routing, tool loops, persistence, and interrupts understandable. It will then
+evolve into a public-facing research-agent demonstration built with Deep Agents,
+with separate OpenClaw experiments and NemoClaw/OpenShell deployment and
+security work.
+
+The goal is not framework reimplementation. The goal is to show how agent
+primitives, higher-level harnesses, and constrained runtime operation fit
+together in one inspectable and reproducible project.
+
 The [LangChain Academy Introduction to LangGraph](https://academy.langchain.com/courses/intro-to-langgraph)
 provides the curriculum map. We will implement its important concepts in one
 evolving project and check examples against the current official documentation.

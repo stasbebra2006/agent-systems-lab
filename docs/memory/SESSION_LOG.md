@@ -48,3 +48,17 @@
   keys but does not enforce `TypedDict` value types at runtime.
 - Deferred automated tests for now; the next milestone is selecting a model
   provider and introducing one observable LLM-backed node.
+
+## 2026-07-21 — Scope aligned with higher-level agent systems
+
+- Decided to learn only the low-level LangGraph mechanisms needed to understand
+  and debug higher-level systems rather than build a large framework from
+  scratch.
+- Set the remaining foundation boundary at messages/reducers, one model/tool
+  loop, checkpoints/threads, and interrupt/resume.
+- Chose Deep Agents as the main application layer, with OpenClaw explored as a
+  separate always-on assistant runtime and NemoClaw/OpenShell as an operations
+  and security layer for supported agent runtimes.
+- Reframed the repository as a future public portfolio project: a safe,
+  inspectable research agent with reproducible setup, architecture decisions,
+  security boundaries, a useful demo, and lightweight evaluation.
