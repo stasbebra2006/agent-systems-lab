@@ -1,12 +1,13 @@
 # Project Memory
 
-Last updated: 2026-07-21
+Last updated: 2026-07-23
 
 ## Goal
 
 Learn enough low-level LangGraph to understand, inspect, and debug reliable
-stateful agents, then apply that foundation through Deep Agents, OpenClaw, and
-NemoClaw in a project suitable for a public GitHub portfolio.
+stateful agents, then apply that foundation through Deep Agents, NeMo Agent
+Toolkit, the NVIDIA AI-Q Blueprint, OpenClaw, OpenShell, and NemoClaw in a
+project suitable for a public GitHub portfolio.
 
 ## Approach
 
@@ -19,10 +20,14 @@ NemoClaw in a project suitable for a public GitHub portfolio.
   older course examples differ.
 - Build a small LangGraph literacy floor explicitly, but do not recreate a
   large agent framework when a higher-level abstraction already fits.
-- Learn advanced low-level features just in time when Deep Agents, OpenClaw, or
-  NemoClaw exposes a concrete need for them.
+- Learn advanced low-level features just in time when Deep Agents, NeMo Agent
+  Toolkit, AI-Q, OpenClaw, OpenShell, or NemoClaw exposes a concrete need for
+  them.
 - Treat reproducibility, observability, security boundaries, and public
   presentation as part of the project rather than end-of-project cleanup.
+- Keep one portfolio repository but preserve separate package, environment,
+  process, and runtime boundaries where the systems have different dependency
+  or lifecycle needs.
 
 ## Project direction
 
@@ -33,26 +38,33 @@ an explanatory foundation; the main showcase should use appropriate higher-level
 frameworks instead of rebuilding their infrastructure.
 
 The intended public narrative is a progression from graph primitives, through
-a useful Deep Agents application, to OpenClaw usage and NemoClaw/OpenShell
-operation with explicit deployment and security tradeoffs.
+a useful Deep Agents application, NeMo Agent Toolkit profiling and evaluation,
+AI-Q operation and extension, OpenClaw usage, and OpenShell/NemoClaw operation
+with explicit deployment and security tradeoffs.
 
 ## Roadmap
 
-1. Complete the deterministic foundation: state, nodes, edges, conditional
-   routing, visualization, and streamed updates.
-2. Finish the LangGraph literacy floor: messages and reducers, one model/tool
-   loop with termination, checkpoints and thread IDs, and interrupt/resume.
-3. Build the useful research assistant with Deep Agents, using planning,
-   filesystem context, focused subagents, memory, and human approval where each
-   capability has a clear purpose.
-4. Explore OpenClaw as a separate always-on assistant runtime and create a
-   relevant skill or configuration around the same research workflow.
-5. Operate supported Deep Agents Code and OpenClaw variants through
-   NemoClaw/OpenShell, documenting inference routing, credentials, sandbox
-   policy, and reproducible lifecycle management.
-6. Prepare the repository for public release with a strong README, architecture
-   diagrams, a demo, safe configuration examples, a threat model, and a small
-   behavior/evaluation suite.
+0. Establish repository boundaries, secret hygiene, provider policy, and cost
+   controls before the first real model call.
+1. Finish the LangGraph literacy floor: messages and reducers, one bounded
+   model/tool loop, checkpoints and thread IDs, and interrupt/resume.
+2. Build a deliberately small research assistant with Deep Agents.
+3. Add NeMo Agent Toolkit as the configuration, profiling, and evaluation
+   layer around the working application.
+4. Run a pinned NVIDIA AI-Q release, map its architecture to the learned
+   concepts, and implement one meaningful extension or comparison.
+5. Explore OpenClaw as a separate always-on assistant and connect one reviewed
+   research skill.
+6. Learn OpenShell directly through explicit policy denial, credential-isolated
+   inference, and sandbox inspection.
+7. Operate OpenClaw through NemoClaw, then exercise inspection, rebuild, and
+   recovery.
+8. Integrate and prepare the public showcase with reproducible setup,
+   architecture diagrams, evaluation results, a demo, and a threat model.
+
+The detailed timeboxes, deliverables, and exit criteria are canonical in
+`docs/ROADMAP.md`. Model-provider and credential practices are canonical in
+`docs/MODEL_ACCESS.md`.
 
 For each phase, the completion standard is to explain the mechanism, implement
 it without blindly copying, inspect its runtime state, and identify common
@@ -76,15 +88,31 @@ failure modes.
   `uv run python -m langgraph_learning.demo` from the repository root.
 - The generated `langgraph-learning` command still runs its placeholder entry
   point, and automated graph tests have not been added yet.
-- No model provider or credentials are configured, which is intentional for the
-  first deterministic graph.
+- An NVIDIA Build account is available and displayed a development limit of up
+  to 40 requests per minute on 2026-07-23. No model-provider package, API key,
+  or credential is configured in the project, which remains intentional for
+  the first deterministic graph.
 - The learning scope now intentionally stops short of building a full framework
   in raw LangGraph. The repository is expected to become a public portfolio
-  demonstration spanning foundations, Deep Agents, OpenClaw, and NemoClaw.
+  demonstration spanning foundations, Deep Agents, NeMo Agent Toolkit, AI-Q,
+  OpenClaw, OpenShell, and NemoClaw.
+- The project is intentionally one repository with multiple bounded packages
+  and runtimes rather than one dependency environment or monolithic process.
+- A time-boxed 86–134 focused-hour roadmap and a cross-cutting model/secret
+  policy are documented. The initial provider preference is NVIDIA's hosted
+  development endpoint, with OpenRouter retained as an optional later
+  portability layer. `.env` variants are ignored before any credentials are
+  introduced.
 
 ## Next action
 
 Introduce message state and reducer semantics with the smallest useful change.
 Then choose a model provider and implement one observable model/tool loop before
 moving on to checkpoints and interrupt/resume. Do not expand the raw LangGraph
-layer into a full research-agent framework.
+layer into a full research-agent framework, and defer NeMo Agent Toolkit until
+the application has real model and tool behavior worth measuring. When the
+first model call becomes the next change, start with the NVIDIA hosted
+development endpoint, select one exact tool-capable model, create only its
+dedicated development credential, and bound concurrency below the account's
+current limit. Add OpenRouter only when portability, fallback, or model
+comparison provides a concrete benefit.

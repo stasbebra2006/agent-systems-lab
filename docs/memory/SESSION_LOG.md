@@ -62,3 +62,37 @@
 - Reframed the repository as a future public portfolio project: a safe,
   inspectable research agent with reproducible setup, architecture decisions,
   security boundaries, a useful demo, and lightweight evaluation.
+
+## 2026-07-23 — NeMo Agent Toolkit added to the roadmap
+
+- Positioned NeMo Agent Toolkit after the working Deep Agents application as
+  the framework-agnostic profiling, observability, and evaluation layer.
+- Kept NemoClaw/OpenShell as the separate runtime operations and security layer.
+- Deferred toolkit integration until the project has real model and tool
+  behavior worth profiling; the immediate LangGraph learning step is unchanged.
+
+## 2026-07-23 — Full ecosystem roadmap and credential policy
+
+- Decided to keep LangGraph, Deep Agents, NAT, AI-Q, OpenClaw, OpenShell, and
+  NemoClaw in one portfolio repository while preserving separate dependency,
+  process, sandbox, and mutable-state boundaries.
+- Added a time-boxed nine-phase roadmap with deliverables and explicit exit
+  criteria; the complete exploration is estimated at 86–134 focused hours.
+- Positioned AI-Q as a pinned reference application to operate and extend, not
+  a stack to copy into the root package.
+- Added model-provider and secret practices covering OpenRouter, direct
+  providers, exact model pinning for evaluations, key isolation, budgets,
+  rotation, and OpenShell credential routing.
+- Added `.env` exclusions before introducing any provider credentials. The next
+  implementation step remains LangGraph message state and reducers.
+
+## 2026-07-23 — Initial provider sequence aligned
+
+- Made the available NVIDIA hosted development endpoint the first provider for
+  the model-backed LangGraph exercise and kept OpenRouter as an optional later
+  portability or fallback layer.
+- Recorded the account's displayed limit of up to 40 requests per minute and
+  added explicit concurrency, rate-limit, and provider-integration checks.
+- Confirmed that no provider package, API key, or credential has been added to
+  the repository; the next implementation step remains message state and
+  reducer semantics.
