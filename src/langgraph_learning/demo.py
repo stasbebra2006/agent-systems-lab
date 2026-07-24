@@ -1,6 +1,8 @@
 from pprint import pprint
 
-from langgraph_learning.graph import graph
+from langchain_core.messages import HumanMessage
+
+from langgraph_learning.graph import ResearchState, graph
 
 
 def main() -> None:
@@ -8,11 +10,15 @@ def main() -> None:
     print(drawable.draw_mermaid())
 
     question = input("Question:")
+    initial_state: ResearchState = {
+        "question": question,
+        "messages": [HumanMessage(content=question)],
+    }
     # result = graph.invoke({"question": question})
     # pprint(result)
     for update in graph.stream(
-        {"question": question},
-        stream_mode="updates",
+        initial_state,
+        stream_mode="values",
     ):
         pprint(update)
 

@@ -1,11 +1,20 @@
-from typing import TypedDict, NotRequired
-from langgraph.graph import StateGraph, START, END
+from typing import Annotated, NotRequired, TypedDict
+
+from langchain_core.messages import AIMessage, AnyMessage
+from langgraph.graph import END, START, StateGraph
+from langgraph.graph.message import add_messages
 
 
 class ResearchState(TypedDict):
     question: str
     route: NotRequired[str]
     answer: NotRequired[str]
+    messages: Annotated[list[AnyMessage], add_messages]
+
+
+class AnswerUpdate(TypedDict):
+    answer: str
+    messages: list[AnyMessage]
 
 
 def select_route(state: ResearchState) -> str:
@@ -17,12 +26,20 @@ def select_route(state: ResearchState) -> str:
     return route
 
 
-def answer_directly(state: ResearchState) -> dict[str, str]:
-    return {"answer": f"Direct path selected for: {state['question']}"}
+def answer_directly(state: ResearchState) -> AnswerUpdate:
+    answer = f"Direct path selected for: {state['question']}"
+    return {
+        "answer": answer,
+        "messages": [AIMessage(content=answer)],
+    }
 
 
-def prepare_research(state: ResearchState) -> dict[str, str]:
-    return {"answer": f"Research path selected for: {state['question']}"}
+def prepare_research(state: ResearchState) -> AnswerUpdate:
+    answer = f"Research path selected for: {state['question']}"
+    return {
+        "answer": answer,
+        "messages": [AIMessage(content=answer)],
+    }
 
 
 def route_question(state: ResearchState) -> dict[str, str]:
