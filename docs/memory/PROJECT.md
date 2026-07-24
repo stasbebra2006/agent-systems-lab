@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 ## Goal
 
@@ -77,15 +77,18 @@ failure modes.
   remote `stasbebra2006/langgraph-learning` configured as `origin`.
 - The repository is a uv-managed Python package targeting Python 3.12, with a
   local virtual environment and committed lockfile.
-- LangGraph 1.2.9 is installed as the first application dependency.
-- `src/langgraph_learning/graph.py` defines and compiles the first deterministic
-  graph: a typed `question`/`route`/`answer` state, a word-count router, direct
-  and research placeholder nodes, conditional routing, and terminal edges.
+- LangGraph 1.2.9 and LangChain Core 1.4.9 are direct application
+  dependencies.
+- `src/langgraph_learning/graph.py` defines and compiles a deterministic graph
+  with typed `question`/`route`/`answer` state plus a `messages` channel using
+  the `add_messages` reducer. Its direct and research answer nodes append
+  deterministic `AIMessage` updates so reducer behavior remains inspectable
+  before introducing a model provider.
 - `src/langgraph_learning/demo.py` provides an interactive module runner that
-  prints the compiled graph as Mermaid syntax before prompting, then streams
-  each node's partial state update. Both the direct and research branches were
-  invoked successfully with
-  `uv run python -m langgraph_learning.demo` from the repository root.
+  prints the compiled graph as Mermaid syntax, creates a typed initial state
+  containing a `HumanMessage`, and streams the complete accumulated state after
+  each step. Both branches were verified to finish with one human and one AI
+  message.
 - The generated `langgraph-learning` command still runs its placeholder entry
   point, and automated graph tests have not been added yet.
 - An NVIDIA Build account is available and displayed a development limit of up
@@ -106,13 +109,13 @@ failure modes.
 
 ## Next action
 
-Introduce message state and reducer semantics with the smallest useful change.
-Then choose a model provider and implement one observable model/tool loop before
-moving on to checkpoints and interrupt/resume. Do not expand the raw LangGraph
-layer into a full research-agent framework, and defer NeMo Agent Toolkit until
-the application has real model and tool behavior worth measuring. When the
-first model call becomes the next change, start with the NVIDIA hosted
-development endpoint, select one exact tool-capable model, create only its
-dedicated development credential, and bound concurrency below the account's
-current limit. Add OpenRouter only when portability, fallback, or model
-comparison provides a concrete benefit.
+At the start of the next session, review the completed answer-node update and
+inspect the final two-message state so the learner can explain exactly where
+`add_messages` ran. Then choose one exact tool-capable model on NVIDIA's hosted
+development endpoint and implement one bounded, observable model/tool loop
+before moving on to checkpoints and interrupt/resume. Create only a dedicated
+development credential, keep concurrency below the account's current limit,
+and add OpenRouter only when portability, fallback, or model comparison provides
+a concrete benefit. Do not expand the raw LangGraph layer into a full
+research-agent framework, and defer NeMo Agent Toolkit until the application
+has real model and tool behavior worth measuring.

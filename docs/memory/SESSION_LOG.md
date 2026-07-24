@@ -96,3 +96,14 @@
 - Confirmed that no provider package, API key, or credential has been added to
   the repository; the next implementation step remains message state and
   reducer semantics.
+
+## 2026-07-24 — Message reducer checkpoint
+
+- Added a typed `messages` state channel backed by LangGraph's `add_messages`
+  reducer and declared LangChain Core as a direct dependency.
+- Updated the demo to initialize a `HumanMessage` and stream complete state
+  values, making state accumulation visible after each graph step.
+- Updated both deterministic answer branches to append an `AIMessage`; runtime
+  assertions verified both routes finish with the expected two-message history.
+- Verified source compilation, Pyright checks, lock consistency, and whitespace.
+  No model provider, credential, or real model call has been introduced yet.
