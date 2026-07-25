@@ -3,6 +3,15 @@ from typing import Annotated, NotRequired, TypedDict
 from langchain_core.messages import AIMessage, AnyMessage
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
+from langchain_nvidia_ai_endpoints import ChatNVIDIA
+
+PRIMARY_MODEL_ID = "nvidia/nemotron-3-nano-30b-a3b"
+
+
+def create_primary_model() -> ChatNVIDIA:
+    return ChatNVIDIA(
+        model=PRIMARY_MODEL_ID,
+    )
 
 
 class ResearchState(TypedDict):

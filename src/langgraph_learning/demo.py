@@ -6,21 +6,19 @@ from langgraph_learning.graph import ResearchState, graph
 
 
 def main() -> None:
-    drawable = graph.get_graph()
-    print(drawable.draw_mermaid())
-
     question = input("Question:")
+    print()
+    print()
     initial_state: ResearchState = {
         "question": question,
         "messages": [HumanMessage(content=question)],
     }
-    # result = graph.invoke({"question": question})
-    # pprint(result)
     for update in graph.stream(
-        initial_state,
+        input=initial_state,
         stream_mode="values",
     ):
-        pprint(update)
+        pprint(update, sort_dicts=False)
+        print()
 
 
 if __name__ == "__main__":
