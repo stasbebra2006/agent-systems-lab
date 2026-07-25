@@ -107,3 +107,19 @@
   assertions verified both routes finish with the expected two-message history.
 - Verified source compilation, Pyright checks, lock consistency, and whitespace.
   No model provider, credential, or real model call has been introduced yet.
+
+## 2026-07-25 — NVIDIA model integration checkpoint
+
+- Added and locked `langchain-nvidia-ai-endpoints` 1.4.3, selected the exact
+  tool-capable `nvidia/nemotron-3-nano-30b-a3b` model, and added a lazy
+  `ChatNVIDIA` factory without changing either graph answer node.
+- Stored the development credential only in an ignored permission-`600`
+  `.env`, loaded it explicitly through uv, and completed a successful isolated
+  model smoke call with thinking disabled and response metadata visible.
+- Simplified the deterministic graph demo output and added `model_demo.py` for
+  provider-only inspection.
+- Stopped before replacing `answer_directly()` with the model-backed update so
+  the learner can implement that exact change at the start of the next session.
+- Verified lock consistency, source compilation, whitespace, and the existing
+  deterministic direct route without making another billed model request;
+  Pyright was unavailable in the current shell.

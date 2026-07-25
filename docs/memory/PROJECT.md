@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-24
+Last updated: 2026-07-25
 
 ## Goal
 
@@ -77,24 +77,30 @@ failure modes.
   remote `stasbebra2006/langgraph-learning` configured as `origin`.
 - The repository is a uv-managed Python package targeting Python 3.12, with a
   local virtual environment and committed lockfile.
-- LangGraph 1.2.9 and LangChain Core 1.4.9 are direct application
-  dependencies.
+- LangGraph 1.2.9, LangChain Core 1.4.9, and
+  `langchain-nvidia-ai-endpoints` 1.4.3 are direct application dependencies.
 - `src/langgraph_learning/graph.py` defines and compiles a deterministic graph
   with typed `question`/`route`/`answer` state plus a `messages` channel using
   the `add_messages` reducer. Its direct and research answer nodes append
-  deterministic `AIMessage` updates so reducer behavior remains inspectable
-  before introducing a model provider.
+  deterministic `AIMessage` updates. The file now also pins
+  `nvidia/nemotron-3-nano-30b-a3b` as the primary model and exposes a lazy
+  `create_primary_model()` factory, but neither graph answer node calls it yet.
 - `src/langgraph_learning/demo.py` provides an interactive module runner that
-  prints the compiled graph as Mermaid syntax, creates a typed initial state
-  containing a `HumanMessage`, and streams the complete accumulated state after
-  each step. Both branches were verified to finish with one human and one AI
-  message.
+  creates a typed initial state containing a `HumanMessage` and streams the
+  complete accumulated state after each step. Its output preserves dictionary
+  order and separates snapshots with blank lines. Both deterministic branches
+  were verified to finish with one human and one AI message.
+- `src/langgraph_learning/model_demo.py` performs one isolated
+  `ChatNVIDIA.invoke()` with thinking disabled and prints response content,
+  usage metadata, and response metadata. The learner ran this credentialed
+  smoke test successfully against NVIDIA's hosted development endpoint.
 - The generated `langgraph-learning` command still runs its placeholder entry
   point, and automated graph tests have not been added yet.
 - An NVIDIA Build account is available and displayed a development limit of up
-  to 40 requests per minute on 2026-07-23. No model-provider package, API key,
-  or credential is configured in the project, which remains intentional for
-  the first deterministic graph.
+  to 40 requests per minute on 2026-07-23. A dedicated local development
+  credential is stored only in an ignored, permission-`600` `.env` and is
+  loaded explicitly with `uv run --env-file .env`; no credential value is
+  versioned.
 - The learning scope now intentionally stops short of building a full framework
   in raw LangGraph. The repository is expected to become a public portfolio
   demonstration spanning foundations, Deep Agents, NeMo Agent Toolkit, AI-Q,
@@ -109,13 +115,15 @@ failure modes.
 
 ## Next action
 
-At the start of the next session, review the completed answer-node update and
-inspect the final two-message state so the learner can explain exactly where
-`add_messages` ran. Then choose one exact tool-capable model on NVIDIA's hosted
-development endpoint and implement one bounded, observable model/tool loop
-before moving on to checkpoints and interrupt/resume. Create only a dedicated
-development credential, keep concurrency below the account's current limit,
-and add OpenRouter only when portability, fallback, or model comparison provides
-a concrete benefit. Do not expand the raw LangGraph layer into a full
-research-agent framework, and defer NeMo Agent Toolkit until the application
-has real model and tool behavior worth measuring.
+At the start of the next session, inspect the successful standalone model
+response if needed, then let the learner replace only `answer_directly()` with
+the pending model-backed implementation: create the primary model, invoke it
+with `state["messages"]` and `thinking_mode=False`, and return
+`response.text` plus `[response]`. This change was deliberately left
+unfinished at the learner's request. Run a short question through the direct
+route and inspect how `add_messages` preserves the returned `AIMessage`
+metadata. After that works, introduce one deterministic tool and build a
+bounded, observable model/tool loop before moving to checkpoints and
+interrupt/resume. Keep concurrency below the account limit, add OpenRouter only
+for a concrete portability or comparison need, and do not expand the raw
+LangGraph layer into a full research-agent framework.
