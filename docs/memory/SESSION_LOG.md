@@ -123,3 +123,28 @@
 - Verified lock consistency, source compilation, whitespace, and the existing
   deterministic direct route without making another billed model request;
   Pyright was unavailable in the current shell.
+
+## 2026-07-26 — Direct graph route backed by NVIDIA
+
+- Replaced only `answer_directly()` with the pending model call: it invokes the
+  primary model with accumulated messages and thinking disabled, exposes
+  `response.text` as the answer, and returns the complete `AIMessage`.
+- Ran the direct route end to end with a concise prompt and confirmed that
+  `add_messages` retained the human and AI messages plus response and usage
+  metadata.
+- Observed 23 input tokens, 42 output tokens, and a normal `stop` finish from
+  the pinned model.
+- Located the existing Mason-managed Pyright 1.1.409 installation outside the
+  normal shell `PATH`; a check explicitly targeting `.venv/bin/python` passed
+  with zero errors or warnings.
+- Added `count_words` as the first deterministic local `@tool`; inspection
+  showed its `StructuredTool` type, inferred JSON input schema, docstring-based
+  description, and the expected direct result. Pyright remained clean.
+- Added an isolated tool-call demo and confirmed that the bound model emits a
+  structured `count_words` request with the expected argument and a unique call
+  ID. Extended it only through local execution, which returned `5`, and stopped
+  before constructing a `ToolMessage` or making a second model call. Pyright
+  remained clean.
+- Left the research route deterministic. The next learning step is to construct
+  a `ToolMessage` matching the completed request before building a bounded,
+  observable model/tool loop.

@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-25
+Last updated: 2026-07-26
 
 ## Goal
 
@@ -79,12 +79,13 @@ failure modes.
   local virtual environment and committed lockfile.
 - LangGraph 1.2.9, LangChain Core 1.4.9, and
   `langchain-nvidia-ai-endpoints` 1.4.3 are direct application dependencies.
-- `src/langgraph_learning/graph.py` defines and compiles a deterministic graph
-  with typed `question`/`route`/`answer` state plus a `messages` channel using
-  the `add_messages` reducer. Its direct and research answer nodes append
-  deterministic `AIMessage` updates. The file now also pins
-  `nvidia/nemotron-3-nano-30b-a3b` as the primary model and exposes a lazy
-  `create_primary_model()` factory, but neither graph answer node calls it yet.
+- `src/langgraph_learning/graph.py` defines and compiles a typed graph with
+  `question`/`route`/`answer` state plus a `messages` channel using the
+  `add_messages` reducer. The direct node now invokes the pinned
+  `nvidia/nemotron-3-nano-30b-a3b` model with the accumulated messages and
+  thinking disabled, stores the response's text as `answer`, and returns the
+  complete `AIMessage` for reducer-backed history. The research node remains
+  deterministic.
 - `src/langgraph_learning/demo.py` provides an interactive module runner that
   creates a typed initial state containing a `HumanMessage` and streams the
   complete accumulated state after each step. Its output preserves dictionary
@@ -94,6 +95,26 @@ failure modes.
   `ChatNVIDIA.invoke()` with thinking disabled and prints response content,
   usage metadata, and response metadata. The learner ran this credentialed
   smoke test successfully against NVIDIA's hosted development endpoint.
+- The credentialed direct graph route was verified end to end on 2026-07-26.
+  Streaming showed the initial state, the router's `direct` decision, and the
+  final accumulated human/AI message history. The test used 23 input and 42
+  output tokens, and the returned `AIMessage` retained provider and usage
+  metadata.
+- Pyright 1.1.409 is installed through Neovim's Mason rather than on the normal
+  shell `PATH`. Invoking its absolute path with `.venv/bin/python` selected via
+  `--pythonpath` reports zero errors.
+- `src/langgraph_learning/tools.py` defines the first deterministic local tool,
+  `count_words`, using LangChain's `@tool` decorator. Runtime inspection
+  confirmed that it becomes a `StructuredTool`, its required string input and
+  description are inferred correctly, and direct invocation returns the
+  expected count.
+- `src/langgraph_learning/tool_call_demo.py` binds `count_words` to the primary
+  model, inspects the response, then invokes the local tool with the returned
+  arguments and prints its result. A credentialed run produced one structured
+  `count_words` request containing the expected text argument, a unique call
+  ID, and no substantive assistant content; direct local execution returned
+  `5`. The demo intentionally stops before constructing a `ToolMessage` or
+  sending the result back to the model.
 - The generated `langgraph-learning` command still runs its placeholder entry
   point, and automated graph tests have not been added yet.
 - An NVIDIA Build account is available and displayed a development limit of up
@@ -115,15 +136,10 @@ failure modes.
 
 ## Next action
 
-At the start of the next session, inspect the successful standalone model
-response if needed, then let the learner replace only `answer_directly()` with
-the pending model-backed implementation: create the primary model, invoke it
-with `state["messages"]` and `thinking_mode=False`, and return
-`response.text` plus `[response]`. This change was deliberately left
-unfinished at the learner's request. Run a short question through the direct
-route and inspect how `add_messages` preserves the returned `AIMessage`
-metadata. After that works, introduce one deterministic tool and build a
-bounded, observable model/tool loop before moving to checkpoints and
-interrupt/resume. Keep concurrency below the account limit, add OpenRouter only
-for a concrete portability or comparison need, and do not expand the raw
+Extend the isolated demo by constructing a `ToolMessage` from the local result
+whose `tool_call_id` matches the model's request. Inspect that message before
+sending anything back to the model. Then complete the response round trip and
+build the visible graph loop with an explicit iteration bound and controlled
+tool-failure behavior. Keep concurrency below the account limit, add OpenRouter
+only for a concrete portability or comparison need, and do not expand the raw
 LangGraph layer into a full research-agent framework.
