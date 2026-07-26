@@ -23,3 +23,15 @@ Project context and progress are recorded in
 The time-boxed learning sequence and completion criteria are in
 [`docs/ROADMAP.md`](docs/ROADMAP.md). Model-provider and credential rules are in
 [`docs/MODEL_ACCESS.md`](docs/MODEL_ACCESS.md).
+
+## Local environment
+
+Recreate the locked Python environment and copy the credential template:
+
+```sh
+uv sync --locked
+cp .env.example .env
+chmod 600 .env
+```
+
+Add the local `NVIDIA_API_KEY` to `.env`. Never commit the populated file.
