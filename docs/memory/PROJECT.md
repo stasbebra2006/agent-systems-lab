@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-25
+Last updated: 2026-07-26
 
 ## Goal
 
@@ -75,8 +75,10 @@ failure modes.
 - The working directory and persistent memory are initialized.
 - The project is a Git repository on the `main` branch, with private GitHub
   remote `stasbebra2006/langgraph-learning` configured as `origin`.
-- The repository is a uv-managed Python package targeting Python 3.12, with a
-  local virtual environment and committed lockfile.
+- The repository is a uv-managed Python package targeting Python 3.12 with a
+  committed lockfile. Homebrew `uv` 0.11.32 and `fd` 10.4.2 are installed on
+  the current macOS host; the ignored local virtual environment currently needs
+  to be recreated.
 - LangGraph 1.2.9, LangChain Core 1.4.9, and
   `langchain-nvidia-ai-endpoints` 1.4.3 are direct application dependencies.
 - `src/langgraph_learning/graph.py` defines and compiles a deterministic graph
@@ -98,9 +100,10 @@ failure modes.
   point, and automated graph tests have not been added yet.
 - An NVIDIA Build account is available and displayed a development limit of up
   to 40 requests per minute on 2026-07-23. A dedicated local development
-  credential is stored only in an ignored, permission-`600` `.env` and is
-  loaded explicitly with `uv run --env-file .env`; no credential value is
-  versioned.
+  credential was used successfully from an ignored, permission-`600` `.env`.
+  The local `.env` currently needs to be recreated; a tracked `.env.example`
+  now documents the required empty `NVIDIA_API_KEY` variable, and no credential
+  value is versioned.
 - The learning scope now intentionally stops short of building a full framework
   in raw LangGraph. The repository is expected to become a public portfolio
   demonstration spanning foundations, Deep Agents, NeMo Agent Toolkit, AI-Q,
@@ -115,13 +118,12 @@ failure modes.
 
 ## Next action
 
-At the start of the next session, inspect the successful standalone model
-response if needed, then let the learner replace only `answer_directly()` with
-the pending model-backed implementation: create the primary model, invoke it
-with `state["messages"]` and `thinking_mode=False`, and return
-`response.text` plus `[response]`. This change was deliberately left
-unfinished at the learner's request. Run a short question through the direct
-route and inspect how `add_messages` preserves the returned `AIMessage`
+Restore the ignored local environment from `.env.example` and recreate the
+project virtual environment if needed. Then let the learner replace only
+`answer_directly()` with the pending model-backed implementation: create the
+primary model, invoke it with `state["messages"]` and `thinking_mode=False`,
+and return `response.text` plus `[response]`. Run a short question through the
+direct route and inspect how `add_messages` preserves the returned `AIMessage`
 metadata. After that works, introduce one deterministic tool and build a
 bounded, observable model/tool loop before moving to checkpoints and
 interrupt/resume. Keep concurrency below the account limit, add OpenRouter only

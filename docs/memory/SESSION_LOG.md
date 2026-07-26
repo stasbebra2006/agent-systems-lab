@@ -123,3 +123,12 @@
 - Verified lock consistency, source compilation, whitespace, and the existing
   deterministic direct route without making another billed model request;
   Pyright was unavailable in the current shell.
+
+## 2026-07-26 — Environment template added
+
+- Added a tracked `.env.example` containing an empty `NVIDIA_API_KEY` variable
+  and explicit warnings not to place credentials in the template.
+- Recorded that the ignored local `.env` must be recreated before the next
+  credentialed model call.
+- Installed Homebrew `fd` 10.4.2 for Neovim virtual-environment discovery and
+  Homebrew `uv` 0.11.32 for project environment management.
