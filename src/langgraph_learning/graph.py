@@ -36,10 +36,14 @@ def select_route(state: ResearchState) -> str:
 
 
 def answer_directly(state: ResearchState) -> AnswerUpdate:
-    answer = f"Direct path selected for: {state['question']}"
+    model = create_primary_model()
+    response = model.invoke(
+        state["messages"],
+        thinking_mode=False,
+    )
     return {
-        "answer": answer,
-        "messages": [AIMessage(content=answer)],
+        "answer": response.text,
+        "messages": [response],
     }
 
 
