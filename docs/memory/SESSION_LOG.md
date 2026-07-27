@@ -148,3 +148,50 @@
 - Left the research route deterministic. The next learning step is to construct
   a `ToolMessage` matching the completed request before building a bounded,
   observable model/tool loop.
+
+## 2026-07-27 — Tool result message checkpoint
+
+- Extended the isolated tool-call demo through construction of a `ToolMessage`
+  whose `tool_call_id` matches the model's structured request.
+- Inspected the difference between the provider's raw tool-call representation,
+  LangChain's normalized `tool_calls`, the AI message ID, and the individual
+  tool-call ID.
+- Stopped before the second model invocation. The next step is to pass the
+  ordered human, assistant-tool-call, and tool-result messages back to the
+  tool-bound model and inspect its final response.
+- Completed the second invocation with the ordered human, assistant tool-call,
+  and matching tool-result messages. The model correctly reported five words
+  and returned no further tool calls, verifying successful manual-loop
+  termination.
+- Local compilation, Pyright, and whitespace checks passed. The next step is to
+  express this protocol as a visible bounded LangGraph loop with controlled
+  tool-failure behavior.
+
+## 2026-07-27 — Systems-thinking collaboration model persisted
+
+- Added `docs/memory/COLLABORATION.md` as the canonical collaboration contract:
+  begin complex work with a compact system map, reason through dependencies and
+  second-order effects, distinguish facts from hypotheses, challenge weak
+  models, and return analysis to implementation and measurement.
+- Updated `AGENTS.md` to require loading the collaboration contract alongside
+  project memory at the start of every session without duplicating the full
+  instructions in the entry point.
+- Added targeted refresh triggers for substantial tasks, system-level
+  decisions, post-compaction continuation, and user-identified reasoning drift;
+  simple factual questions and mechanical edits do not trigger redundant
+  rereads.
+- Refined the learning workflow from horizontal component buildup to vertical
+  slices: each new construct should enter the smallest safe runnable path and
+  produce immediate observable evidence before another mechanism is added.
+
+## 2026-07-27 — Tool-loop foundation checkpoint
+
+- Added an uncompiled `tool_graph.py` foundation with typed reducer-backed
+  messages, explicit tool-round state, a tool-bound model node, model-output
+  routing, a standard `ToolNode`, and deterministic round accounting.
+- Verified the router locally with synthetic `AIMessage` values: a structured
+  tool call routes to tools, while ordinary assistant content routes to
+  termination. Compilation and Pyright remained clean.
+- Identified delayed integration as a learning-process problem and changed the
+  next step to a safe one-round vertical slice with streamed node updates,
+  followed by finalization and then the bounded multi-round path.

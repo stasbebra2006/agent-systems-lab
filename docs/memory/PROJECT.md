@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-26
+Last updated: 2026-07-27
 
 ## Goal
 
@@ -16,6 +16,8 @@ project suitable for a public GitHub portfolio.
 - Learn interactively by extending one coherent project.
 - Follow the learner-driven, one-change-at-a-time process documented in
   `docs/LEARNING_WORKFLOW.md`.
+- Follow the persistent systems-thinking collaboration contract in
+  `docs/memory/COLLABORATION.md`.
 - Prefer current official documentation and installed-package behavior when
   older course examples differ.
 - Build a small LangGraph literacy floor explicitly, but do not recreate a
@@ -110,11 +112,19 @@ failure modes.
   expected count.
 - `src/langgraph_learning/tool_call_demo.py` binds `count_words` to the primary
   model, inspects the response, then invokes the local tool with the returned
-  arguments and prints its result. A credentialed run produced one structured
-  `count_words` request containing the expected text argument, a unique call
-  ID, and no substantive assistant content; direct local execution returned
-  `5`. The demo intentionally stops before constructing a `ToolMessage` or
-  sending the result back to the model.
+  arguments, prints its result, constructs a `ToolMessage` whose `tool_call_id`
+  matches the model request, and sends the ordered message history back to the
+  tool-bound model. A credentialed round trip on 2026-07-27 produced one
+  structured `count_words` request, returned `5` locally, generated a final
+  natural-language answer confirming five words, and terminated with no further
+  tool calls.
+- `src/langgraph_learning/tool_graph.py` is an uncompiled foundation for the
+  visible graph loop. It defines reducer-backed message state plus a
+  `tool_rounds` counter, a tool-bound model node, deterministic routing from an
+  `AIMessage` to tools or termination, a `ToolNode` for `count_words`, and a
+  separate round-increment node. Synthetic messages verified both model-output
+  routing branches, and local compilation and Pyright checks pass. No graph
+  builder, compiled graph, or runner exists yet.
 - The generated `langgraph-learning` command still runs its placeholder entry
   point, and automated graph tests have not been added yet.
 - An NVIDIA Build account is available and displayed a development limit of up
@@ -136,10 +146,11 @@ failure modes.
 
 ## Next action
 
-Extend the isolated demo by constructing a `ToolMessage` from the local result
-whose `tool_call_id` matches the model's request. Inspect that message before
-sending anything back to the model. Then complete the response round trip and
-build the visible graph loop with an explicit iteration bound and controlled
-tool-failure behavior. Keep concurrency below the account limit, add OpenRouter
-only for a concrete portability or comparison need, and do not expand the raw
-LangGraph layer into a full research-agent framework.
+Turn the existing `tool_graph.py` components into the smallest safe vertical
+slice: compile a one-tool-round graph that stops after round accounting, add a
+reusable module runner, and stream each node update. After observing that path,
+add finalization, then replace the temporary hard stop with the explicit
+multi-round bound and controlled tool-failure behavior. Keep concurrency below
+the account limit, add OpenRouter only for a concrete portability or comparison
+need, and do not expand the raw LangGraph layer into a full research-agent
+framework.
