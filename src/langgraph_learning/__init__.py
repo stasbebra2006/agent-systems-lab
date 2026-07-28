@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from langgraph-learning!")
+"""Low-level LangGraph foundations for Agent Systems Lab."""

@@ -1,3 +1,5 @@
+"""Word-counting tool definition."""
+
 from langchain_core.tools import tool
 
 

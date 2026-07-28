@@ -1,5 +1,8 @@
-from langgraph_learning.graph import create_primary_model
+"""Run one isolated model call and inspect its metadata."""
+
 from pprint import pprint
+
+from langgraph_learning.models import create_primary_model
 
 
 def main() -> None:

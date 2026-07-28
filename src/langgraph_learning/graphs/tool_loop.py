@@ -1,11 +1,13 @@
+"""Bounded tool-loop graph foundation."""
+
 from typing import Annotated, Literal, TypedDict
 
 from langchain_core.messages import AIMessage, AnyMessage
-from langgraph.graph import add_messages
+from langgraph.graph import END, START, StateGraph, add_messages
 from langgraph.prebuilt import ToolNode
 
-from langgraph_learning.graph import create_primary_model
-from langgraph_learning.tools import count_words
+from langgraph_learning.models import create_primary_model
+from langgraph_learning.tools.word_counter import count_words
 
 MAX_TOOL_ROUNDS = 3
 
@@ -57,3 +59,26 @@ def increment_tool_round(state: ToolLoopState) -> ToolRoundUpdate:
     return {
         "tool_rounds": state["tool_rounds"] + 1,
     }
+
+
+builder = StateGraph(ToolLoopState)
+
+builder.add_node("model", call_model)
+builder.add_node("tools", tool_node)
+builder.add_node("increment_tool_round", increment_tool_round)
+
+builder.add_edge(START, "model")
+builder.add_conditional_edges(
+    "model",
+    route_model_output,
+    {
+        "tools": "tools",
+        "end": END,
+    },
+)
+
+
+builder.add_edge("tools", "increment_tool_round")
+builder.add_edge("increment_tool_round", END)
+
+tool_graph = builder.compile()

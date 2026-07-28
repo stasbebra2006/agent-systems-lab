@@ -1,9 +1,11 @@
+"""Demonstrate the model-tool protocol without a graph."""
+
 from pprint import pprint
 
 from langchain_core.messages import HumanMessage, ToolMessage
 
-from langgraph_learning.graph import create_primary_model
-from langgraph_learning.tools import count_words
+from langgraph_learning.models import create_primary_model
+from langgraph_learning.tools.word_counter import count_words
 
 
 def main() -> None:

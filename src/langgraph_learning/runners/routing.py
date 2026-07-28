@@ -1,8 +1,10 @@
+"""Stream the introductory routing graph interactively."""
+
 from pprint import pprint
 
 from langchain_core.messages import HumanMessage
 
-from langgraph_learning.graph import ResearchState, graph
+from langgraph_learning.graphs.routing import ResearchState, graph
 
 
 def main() -> None:
