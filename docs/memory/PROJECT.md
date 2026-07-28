@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 ## Goal
 
@@ -16,6 +16,9 @@ project suitable for a public GitHub portfolio.
 - Learn interactively by extending one coherent project.
 - Follow the learner-driven, one-change-at-a-time process documented in
   `docs/LEARNING_WORKFLOW.md`.
+- Treat a dedicated interactive runner as part of completing each runnable
+  graph or protocol slice; use `runners/playground.py` only for temporary
+  inspection.
 - Follow the persistent systems-thinking collaboration contract in
   `docs/memory/COLLABORATION.md`.
 - Prefer current official documentation and installed-package behavior when
@@ -27,6 +30,9 @@ project suitable for a public GitHub portfolio.
   them.
 - Treat reproducibility, observability, security boundaries, and public
   presentation as part of the project rather than end-of-project cleanup.
+- Keep `README.md` synchronized after meaningful changes to public
+  capabilities, setup, architecture, repository structure, roadmap state, or
+  the current next step.
 - Keep one portfolio repository but preserve separate package, environment,
   process, and runtime boundaries where the systems have different dependency
   or lifecycle needs.
@@ -75,25 +81,38 @@ failure modes.
 ## Current status
 
 - The working directory and persistent memory are initialized.
-- The project is a Git repository on the `main` branch, with private GitHub
-  remote `stasbebra2006/langgraph-learning` configured as `origin`.
+- The project is the public GitHub repository
+  `stasbebra2006/agent-systems-lab` on the `main` branch, configured as
+  `origin`.
+- `Agent Systems Lab` is the repository-level identity spanning the complete
+  roadmap. The existing `langgraph_learning` Python package and
+  `langgraph-learning` distribution/CLI retain their narrow names because they
+  describe only the low-level LangGraph foundation.
+- `README.md` is the public entry point and now distinguishes verified current
+  behavior from the target architecture, provides credential-free and
+  credentialed quick starts, and summarizes the roadmap and engineering
+  constraints.
 - The repository is a uv-managed Python package targeting Python 3.12, with a
   local virtual environment and committed lockfile.
 - LangGraph 1.2.9, LangChain Core 1.4.9, and
   `langchain-nvidia-ai-endpoints` 1.4.3 are direct application dependencies.
-- `src/langgraph_learning/graph.py` defines and compiles a typed graph with
-  `question`/`route`/`answer` state plus a `messages` channel using the
+- `src/langgraph_learning/models.py` owns the pinned primary model ID and model
+  factory. Graphs and runners import this shared provider construction directly,
+  so one graph module no longer supplies common infrastructure to another.
+- `src/langgraph_learning/graphs/routing.py` defines and compiles a typed graph
+  with `question`/`route`/`answer` state plus a `messages` channel using the
   `add_messages` reducer. The direct node now invokes the pinned
   `nvidia/nemotron-3-nano-30b-a3b` model with the accumulated messages and
   thinking disabled, stores the response's text as `answer`, and returns the
   complete `AIMessage` for reducer-backed history. The research node remains
   deterministic.
-- `src/langgraph_learning/demo.py` provides an interactive module runner that
-  creates a typed initial state containing a `HumanMessage` and streams the
-  complete accumulated state after each step. Its output preserves dictionary
-  order and separates snapshots with blank lines. Both deterministic branches
-  were verified to finish with one human and one AI message.
-- `src/langgraph_learning/model_demo.py` performs one isolated
+- `src/langgraph_learning/runners/routing.py` provides an interactive module
+  runner that creates a typed initial state containing a `HumanMessage` and
+  streams the complete accumulated state after each step. Its output preserves
+  dictionary order and separates snapshots with blank lines. Both
+  deterministic branches were verified to finish with one human and one AI
+  message.
+- `src/langgraph_learning/runners/model_call.py` performs one isolated
   `ChatNVIDIA.invoke()` with thinking disabled and prints response content,
   usage metadata, and response metadata. The learner ran this credentialed
   smoke test successfully against NVIDIA's hosted development endpoint.
@@ -105,28 +124,39 @@ failure modes.
 - Pyright 1.1.409 is installed through Neovim's Mason rather than on the normal
   shell `PATH`. Invoking its absolute path with `.venv/bin/python` selected via
   `--pythonpath` reports zero errors.
-- `src/langgraph_learning/tools.py` defines the first deterministic local tool,
-  `count_words`, using LangChain's `@tool` decorator. Runtime inspection
-  confirmed that it becomes a `StructuredTool`, its required string input and
-  description are inferred correctly, and direct invocation returns the
-  expected count.
-- `src/langgraph_learning/tool_call_demo.py` binds `count_words` to the primary
-  model, inspects the response, then invokes the local tool with the returned
-  arguments, prints its result, constructs a `ToolMessage` whose `tool_call_id`
-  matches the model request, and sends the ordered message history back to the
-  tool-bound model. A credentialed round trip on 2026-07-27 produced one
-  structured `count_words` request, returned `5` locally, generated a final
-  natural-language answer confirming five words, and terminated with no further
-  tool calls.
-- `src/langgraph_learning/tool_graph.py` is an uncompiled foundation for the
-  visible graph loop. It defines reducer-backed message state plus a
-  `tool_rounds` counter, a tool-bound model node, deterministic routing from an
-  `AIMessage` to tools or termination, a `ToolNode` for `count_words`, and a
-  separate round-increment node. Synthetic messages verified both model-output
-  routing branches, and local compilation and Pyright checks pass. No graph
-  builder, compiled graph, or runner exists yet.
-- The generated `langgraph-learning` command still runs its placeholder entry
-  point, and automated graph tests have not been added yet.
+- `src/langgraph_learning/tools/word_counter.py` defines the first
+  deterministic local tool, `count_words`, using LangChain's `@tool`
+  decorator. Runtime inspection confirmed that it becomes a `StructuredTool`,
+  its required string input and description are inferred correctly, and direct
+  invocation returns the expected count.
+- `src/langgraph_learning/runners/manual_tool_call.py` binds `count_words` to
+  the primary model, inspects the response, then invokes the local tool with
+  the returned arguments, prints its result, constructs a `ToolMessage` whose
+  `tool_call_id` matches the model request, and sends the ordered message
+  history back to the tool-bound model. A credentialed round trip on 2026-07-27
+  produced one structured `count_words` request, returned `5` locally,
+  generated a final natural-language answer confirming five words, and
+  terminated with no further tool calls.
+- `src/langgraph_learning/graphs/tool_loop.py` defines reducer-backed message
+  state plus a `tool_rounds` counter, a tool-bound model node, deterministic
+  routing from an `AIMessage` to tools or termination, a `ToolNode` for
+  `count_words`, and a separate round-increment node. Its compiled temporary
+  topology routes `START -> model`, conditionally terminates or executes
+  `tools -> increment_tool_round`, and then hard-stops before a second model
+  call. The node registrations and rendered topology were verified locally;
+  synthetic messages previously verified both routing branches, imports and
+  Pyright pass.
+- `src/langgraph_learning/runners/tool_loop.py` creates the typed initial state
+  and streams individual node updates through the temporary one-round graph.
+  A credentialed run on 2026-07-28 with `Hello world` produced a normalized
+  `count_words` call, executed it locally with result `2`, emitted the matching
+  `ToolMessage`, incremented `tool_rounds` to `1`, and stopped as designed. The
+  model call used 271 input and 26 output tokens. `runners/playground.py` is the
+  editable inspection workbench and currently renders this topology without a
+  provider request.
+- The unused placeholder `langgraph-learning` console script was removed;
+  runners are invoked explicitly as Python modules. Automated graph tests have
+  not been added yet.
 - An NVIDIA Build account is available and displayed a development limit of up
   to 40 requests per minute on 2026-07-23. A dedicated local development
   credential is stored only in an ignored, permission-`600` `.env` and is
@@ -138,19 +168,20 @@ failure modes.
   OpenClaw, OpenShell, and NemoClaw.
 - The project is intentionally one repository with multiple bounded packages
   and runtimes rather than one dependency environment or monolithic process.
-- A time-boxed 86–134 focused-hour roadmap and a cross-cutting model/secret
-  policy are documented. The initial provider preference is NVIDIA's hosted
-  development endpoint, with OpenRouter retained as an optional later
-  portability layer. `.env` variants are ignored before any credentials are
-  introduced.
+- The accepted source restructuring is implemented: `graphs/` owns reusable
+  graph definitions, `runners/` owns executable inspection entry points,
+  `tools/` owns focused tool modules, and `models.py` remains at the package
+  root rather than introducing a generic `core/` directory.
 
 ## Next action
 
-Turn the existing `tool_graph.py` components into the smallest safe vertical
-slice: compile a one-tool-round graph that stops after round accounting, add a
-reusable module runner, and stream each node update. After observing that path,
-add finalization, then replace the temporary hard stop with the explicit
-multi-round bound and controlled tool-failure behavior. Keep concurrency below
-the account limit, add OpenRouter only for a concrete portability or comparison
-need, and do not expand the raw LangGraph layer into a full research-agent
-framework.
+Start the next session without changing code. Open
+`src/langgraph_learning/graphs/tool_loop.py` together with
+`src/langgraph_learning/runners/tool_loop.py`, revisit the observed
+`Hello world` stream, and let the learner ask the unresolved question about
+that exact execution before advancing. Remember that
+`src/langgraph_learning/runners/playground.py` is the editable workbench for
+ad hoc inspection, while every completed interactive slice keeps its dedicated
+runner. Once the current behavior is clear, add a separate bounded finalization
+node after round accounting so the model can turn the completed `ToolMessage`
+into a natural-language answer and still terminate without another tool round.

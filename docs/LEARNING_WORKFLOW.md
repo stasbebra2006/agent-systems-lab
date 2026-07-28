@@ -18,6 +18,11 @@ code; the assistant explains, reviews, and helps debug it.
 8. Inspect the real code or output before continuing.
 9. Move forward when the learner asks for the next step.
 
+When an interactive graph or protocol reaches a working checkpoint, completing
+that slice includes a dedicated module under `src/langgraph_learning/runners/`
+so the learner can run and inspect it again. `runners/playground.py` is only a
+temporary workbench for ad hoc probes; it does not replace the stable runner.
+
 The assistant should not silently build ahead unless the learner explicitly
 asks for implementation. Commands that create or modify files, environments, or
 dependencies should be identified as such before they run.

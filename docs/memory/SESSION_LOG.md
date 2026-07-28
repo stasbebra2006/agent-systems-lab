@@ -195,3 +195,118 @@
 - Identified delayed integration as a learning-process problem and changed the
   next step to a safe one-round vertical slice with streamed node updates,
   followed by finalization and then the bounded multi-round path.
+
+## 2026-07-28 — Repository renamed Agent Systems Lab
+
+- Renamed the public GitHub repository from `langgraph-learning` to
+  `agent-systems-lab` and verified that the local `origin` uses the new SSH URL.
+- Renamed the local checkout directory to `agent-systems-lab` as well.
+- Updated the public README identity to `Agent Systems Lab`.
+- Kept the `langgraph_learning` Python package and `langgraph-learning`
+  distribution/CLI names because they remain the bounded low-level foundation,
+  not the identity of the wider multi-framework repository.
+
+## 2026-07-28 — Public README established
+
+- Reworked the README into the public project entry point with an honest
+  implemented-versus-planned boundary, current capabilities, target
+  architecture, phase status, quick starts, repository structure, engineering
+  principles, documentation map, and maturity warning.
+- Added a credential-free command that exercises the deterministic research
+  branch and separate commands for the credentialed model and tool-call demos.
+- Persisted a repository instruction to update the README whenever meaningful
+  work changes public behavior, setup, architecture, structure, roadmap status,
+  or the next implementation step; discussion-only turns do not create README
+  churn.
+
+## 2026-07-28 — Shared model construction extracted
+
+- Added `models.py` as the explicit owner of the pinned model ID and primary
+  model factory.
+- Updated both graph modules and both credentialed demos to depend on the model
+  module instead of importing shared infrastructure from `graph.py`.
+- Verified all affected imports, source compilation, Pyright, and whitespace
+  without making a provider request.
+- Inspection also found that the learner-added provisional builder registers
+  both the tool and counter node names with `call_model`. Static checks pass
+  despite that semantic wiring error, so the graph code was left untouched for
+  the next learner correction.
+- Set the next step to correct those registrations, inspect the topology, and
+  then finish the narrow graph/demo layout separation before adding the
+  executable one-round tool-loop runner.
+
+## 2026-07-28 — Source package grouped by responsibility
+
+- Added `graphs/` for reusable graph definitions and `demos/` for executable
+  learning entry points, each with an explicit package initializer.
+- Moved and descriptively renamed the routing graph, tool-loop graph, routing
+  runner, model-call demo, and manual tool-call demo.
+- Kept `models.py` and `tools.py` at the package root as narrow shared
+  infrastructure rather than introducing a generic global utility module.
+- Updated internal imports, public quick-start commands, the repository tree,
+  and canonical memory. The pending tool-node registration correction remains
+  intentionally separate from this behavior-preserving layout change.
+- Verified the new module paths through compilation, import checks, the
+  credential-free streamed routing demo, Pyright, and whitespace checks.
+
+## 2026-07-28 — One-round tool topology corrected
+
+- Corrected the provisional graph registrations so the `tools` node executes
+  the `ToolNode` and `increment_tool_round` executes the counter update.
+- Rendered the compiled graph without a provider request and verified the safe
+  topology: model output either terminates or takes one
+  `tools -> increment_tool_round -> END` path.
+- Pyright and whitespace checks passed. The next step is to add the executable
+  demo runner and stream real node updates through this temporary hard stop.
+
+## 2026-07-28 — Directory restructuring plan created
+
+- Analyzed existing codebase layout and proposed a clean, layered architectural structure.
+- Created `RESTRUCTURING_PLAN.md` in the project root to document target directory paths (`core/`, `tools/`, `graphs/`, `runners/`, `tests/`), file mappings, and step-by-step migration tasks.
+- Updated project memory to reflect the new plan.
+
+## 2026-07-28 — Accepted source restructuring implemented
+
+- Replaced `demos/` with `runners/`, moved `count_words` into the focused
+  `tools/word_counter.py` module, and retained the single shared `models.py` at
+  the package root instead of adding a generic `core/` package.
+- Added a stable interactive tool-loop runner plus an editable playground that
+  currently renders the graph topology without a provider request.
+- Removed the unused placeholder console script and standardized execution on
+  explicit `python -m langgraph_learning.runners.<name>` module paths.
+- Updated imports, public commands, repository structure documentation,
+  restructuring status, and canonical project memory.
+- Verified lock consistency, package imports, direct tool behavior, the
+  credential-free playground and routing stream, source compilation, Pyright,
+  and whitespace.
+
+## 2026-07-28 — Runner completion rule clarified
+
+- Clarified that a working interactive graph or protocol is not a completed
+  learning slice until it has a dedicated runner the learner can execute and
+  inspect repeatedly.
+- Recorded `runners/playground.py` as a temporary ad hoc workbench rather than
+  a substitute for a stable runner.
+
+## 2026-07-28 — Credentialed one-round tool graph observed
+
+- Ran the dedicated tool-loop runner with `Hello world` and streamed the
+  `model`, `tools`, and `increment_tool_round` node updates.
+- The model requested `count_words` with the original text, the local tool
+  returned `2`, the matching `ToolMessage` preserved the tool-call ID, and
+  round accounting advanced from zero to one.
+- The request used 271 input and 26 output tokens and ended at the intentional
+  hard stop, confirming that final natural-language synthesis is the next
+  missing transition rather than a tool-execution failure.
+
+## 2026-07-28 — Session handoff at observed tool-loop state
+
+- Stopped immediately after explaining the credentialed
+  `model -> tools -> increment_tool_round -> END` output.
+- The learner has an unresolved question about this exact execution and wants
+  the next session to reopen `graphs/tool_loop.py` and its dedicated
+  `runners/tool_loop.py` without making another code change first.
+- Preserve `runners/playground.py` as the editable ad hoc inspection file; it
+  complements but never replaces dedicated runners for completed slices.
+- Only after resolving the question should work proceed to the separate,
+  bounded finalization node.

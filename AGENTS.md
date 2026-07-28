@@ -15,5 +15,11 @@ for simple factual questions or mechanical one-step edits.
 After meaningful work, update its current facts and next action, then append a
 concise entry to `docs/memory/SESSION_LOG.md`.
 
+Treat `README.md` as the public view of the project. In the same turn, update it
+when meaningful work changes public capabilities, setup instructions,
+architecture, repository structure, roadmap state, or the current next step.
+Do not rewrite it for discussion-only turns or changes that affect only
+internal collaboration memory.
+
 If information conflicts, prefer working code and tests, then `PROJECT.md`, then
 older session-log entries. Do not duplicate project facts here.

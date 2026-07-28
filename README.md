@@ -1,37 +1,211 @@
-# LangGraph Learning Lab
+# Agent Systems Lab
 
-A project-driven environment for learning LangGraph by building a useful,
-stateful agent rather than only completing disconnected tutorials.
+An implementation-first study of reliable, inspectable agent systems—from
+explicit LangGraph state and bounded tool loops to evaluated research workflows
+and sandboxed assistant runtimes.
 
-The project intentionally implements only enough raw LangGraph to make state,
-routing, tool loops, persistence, and interrupts understandable. It will then
-evolve into a public-facing research-agent demonstration built with Deep Agents,
-informed by NVIDIA AI-Q and measured with NeMo Agent Toolkit, with separate
-OpenClaw experiments and NemoClaw/OpenShell deployment and security work.
+> **Status:** Phase 1 is active. The repository currently contains the
+> low-level LangGraph foundation; the higher-level application and runtime
+> layers described below are planned, not yet implemented.
 
-The goal is not framework reimplementation. The goal is to show how agent
-primitives, higher-level harnesses, and constrained runtime operation fit
-together in one inspectable and reproducible project.
+## Why this repository exists
 
-The [LangChain Academy Introduction to LangGraph](https://academy.langchain.com/courses/intro-to-langgraph)
-provides the curriculum map. We will implement its important concepts in one
-evolving project and check examples against the current official documentation.
+Agent frameworks make useful systems easier to build, but their abstractions
+can hide the mechanisms that determine reliability: state transitions, message
+ordering, routing, loop termination, persistence, approvals, tool failures, and
+runtime permissions.
 
-Project context and progress are recorded in
-[`docs/memory/PROJECT.md`](docs/memory/PROJECT.md).
+This project starts one layer lower. It makes those mechanisms observable in a
+small executable graph, then moves upward to higher-level frameworks only when
+they solve a demonstrated need. The intended result is both a learning record
+and a reproducible portfolio project showing how application behavior,
+evaluation, model access, and security boundaries fit together.
 
-The time-boxed learning sequence and completion criteria are in
-[`docs/ROADMAP.md`](docs/ROADMAP.md). Model-provider and credential rules are in
-[`docs/MODEL_ACCESS.md`](docs/MODEL_ACCESS.md).
+The project is deliberately **not** an attempt to recreate a complete agent
+framework in raw LangGraph.
 
-## Local environment
+## What works today
 
-Recreate the locked Python environment and copy the credential template:
+- A typed `StateGraph` with explicit state, deterministic routing, and
+  reducer-backed message history.
+- Streamed state snapshots that make each graph transition visible.
+- A pinned NVIDIA-hosted model integration with response and usage metadata.
+- A deterministic local `count_words` tool and a verified manual
+  model → tool → `ToolMessage` → model round trip.
+- A compiled one-round tool graph topology with model routing, `ToolNode`
+  execution, explicit round accounting, and a temporary hard stop before any
+  second model call. Its credentialed runner has produced and executed a
+  structured tool request with streamed per-node updates.
+- A locked Python 3.12 environment, sanitized credential template, and written
+  model/secret policy.
+
+The current checkpoint is the observed one-round
+`model -> tools -> increment_tool_round -> END` stream. After that state flow is
+fully understood, the next implementation step is a bounded finalization node
+that turns the completed tool result into a natural-language answer.
+
+## Target system
+
+This is the integration direction, not the current repository state:
+
+```mermaid
+flowchart TB
+    USER["User or messaging channel"]
+
+    subgraph SANDBOX["NemoClaw-managed OpenShell sandbox"]
+        OPENCLAW["OpenClaw assistant"]
+    end
+
+    RESEARCH["Deep Agents research service<br/>or NVIDIA AI-Q"]
+    LANGGRAPH["LangGraph durable runtime"]
+    NAT["NeMo Agent Toolkit<br/>traces, profiling, evaluation"]
+    PROVIDERS["Selected model and tool providers"]
+
+    USER --> OPENCLAW
+    OPENCLAW -->|"skill, MCP, or HTTP"| RESEARCH
+    RESEARCH --> LANGGRAPH
+    RESEARCH --> NAT
+    RESEARCH --> PROVIDERS
+```
+
+The repository is the shared narrative and integration surface. Components
+with different dependencies or lifecycles will keep separate packages,
+environments, processes, and runtime state.
+
+## Roadmap
+
+| Phase | Focus | State |
+| --- | --- | --- |
+| 0 | Repository boundaries, secrets, provider policy, and cost controls | Baseline in place |
+| 1 | LangGraph state, tools, bounded loops, checkpoints, and interrupts | In progress |
+| 2 | Useful research assistant built with Deep Agents | Planned |
+| 3 | NeMo Agent Toolkit profiling and evaluation | Planned |
+| 4 | NVIDIA AI-Q operation, architecture study, and one extension | Planned |
+| 5 | OpenClaw as an always-on assistant runtime | Planned |
+| 6 | OpenShell policy and credential-isolation experiments | Planned |
+| 7 | NemoClaw-managed operation, rebuild, and recovery | Planned |
+| 8 | Integrated demo, evaluation evidence, and threat model | Planned |
+
+Each phase must produce a working happy path, an important failure or denial
+path, an inspectable artifact, and a concrete reason to advance. The detailed
+deliverables and exit criteria are in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+## Quick start
+
+### Prerequisites
+
+- Python 3.12
+- `uv`
+
+Clone the repository and recreate the locked environment:
 
 ```sh
+git clone https://github.com/stasbebra2006/agent-systems-lab.git
+cd agent-systems-lab
 uv sync --locked
+```
+
+Run the current deterministic research branch without a provider credential:
+
+```sh
+printf '%s\n' \
+  'Explain why explicit graph state improves debuggability in agent systems' \
+  | uv run python -m langgraph_learning.runners.routing
+```
+
+The streamed output should show the initial state, the router selecting the
+`research` branch, and the final accumulated human/AI message history.
+
+Render the current tool-loop topology from the editable inspection workbench:
+
+```sh
+uv run python -m langgraph_learning.runners.playground
+```
+
+### Credentialed NVIDIA demos
+
+Copy the sanitized template and add a dedicated NVIDIA API Catalog development
+key locally:
+
+```sh
 cp .env.example .env
 chmod 600 .env
 ```
 
-Add the local `NVIDIA_API_KEY` to `.env`. Never commit the populated file.
+Never commit the populated `.env`.
+
+Test the provider connection and inspect its metadata:
+
+```sh
+uv run --env-file .env python -m langgraph_learning.runners.model_call
+```
+
+Run the isolated structured-tool protocol:
+
+```sh
+uv run --env-file .env python -m langgraph_learning.runners.manual_tool_call
+```
+
+Stream the temporary one-round tool graph:
+
+```sh
+uv run --env-file .env python -m langgraph_learning.runners.tool_loop
+```
+
+These commands make external model requests. The main automated test suite will
+remain deterministic and credential-free as it is introduced.
+
+## Repository structure
+
+```text
+src/langgraph_learning/
+├── graphs/                   # reusable states, nodes, routes, and graph topology
+├── runners/                  # executable streams, protocol probes, and playground
+├── tools/                    # focused local tool modules
+├── models.py                 # shared model selection and construction
+└── __init__.py               # package marker
+docs/ROADMAP.md               # phases, deliverables, and exit criteria
+docs/LEARNING_WORKFLOW.md     # one-change-at-a-time learning loop
+docs/MODEL_ACCESS.md          # provider, reproducibility, and secret policy
+docs/memory/                  # canonical project status and session continuity
+```
+
+Future phase-specific directories will be created only when their phase begins.
+Complete upstream repositories, real conversations, checkpoints, databases,
+credentials, and mutable assistant state do not belong in this repository.
+
+## Engineering principles
+
+- **Make state visible.** Stream or test every meaningful transition.
+- **Bound autonomous behavior.** Loops, retries, concurrency, and costly
+  operations need explicit limits.
+- **Build vertical slices.** Connect one new mechanism to the smallest safe
+  executable path before adding another.
+- **Separate responsibilities.** Application behavior, evaluation,
+  orchestration, and sandbox policy should not collapse into one process.
+- **Pin what affects evidence.** Record exact models, providers, dependencies,
+  datasets, and configuration for comparisons.
+- **Keep credentials outside Git.** Version variable names and sanitized
+  examples, never secret values or sensitive runtime artifacts.
+
+## Project documentation
+
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — system-level learning and portfolio
+  roadmap
+- [`docs/LEARNING_WORKFLOW.md`](docs/LEARNING_WORKFLOW.md) — collaboration and
+  implementation cadence
+- [`docs/MODEL_ACCESS.md`](docs/MODEL_ACCESS.md) — model selection,
+  reproducibility, cost, and secret practices
+- [`docs/memory/PROJECT.md`](docs/memory/PROJECT.md) — current implementation
+  facts and next action
+
+The LangChain Academy Introduction to LangGraph is used as a coverage map, while
+implementation decisions are checked against the installed package behavior and
+current official documentation.
+
+## Maturity
+
+This is an evolving learning and portfolio repository, not a production-ready
+agent platform. Credentialed examples can consume provider quota, and future
+runtime/security claims will be accompanied by reproducible demonstrations
+before they are presented as completed.
