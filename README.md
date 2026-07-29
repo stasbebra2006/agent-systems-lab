@@ -39,9 +39,11 @@ framework in raw LangGraph.
 - A locked Python 3.12 environment, sanitized credential template, and written
   model/secret policy.
 
-The current checkpoint is the observed one-round
-`model -> tools -> increment_tool_round -> END` stream. After that state flow is
-fully understood, the next implementation step is a bounded finalization node
+The current checkpoint remains the observed one-round
+`model -> tools -> increment_tool_round -> END` stream. A readable response
+view is in progress in its dedicated runner; the raw per-node updates remain
+the canonical output until that view filters completed model answers from
+tool-protocol messages. The next protocol step is a bounded finalization node
 that turns the completed tool result into a natural-language answer.
 
 ## Target system

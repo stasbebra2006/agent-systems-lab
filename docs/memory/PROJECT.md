@@ -154,6 +154,22 @@ failure modes.
   model call used 271 input and 26 output tokens. `runners/playground.py` is the
   editable inspection workbench and currently renders this topology without a
   provider request.
+- Runtime inspection on 2026-07-29 established the exact update boundary:
+  `CompiledStateGraph.stream(..., stream_mode="updates")` returns a generator
+  that emits a node-name wrapper around that node's partial state update.
+  `ToolNode` executes the structured request from the latest `AIMessage`,
+  returns its ordinary result as a matching `ToolMessage` under `messages`,
+  and `add_messages` merges that update into the graph's accumulated history.
+  Even parallel nodes were observed as separate streamed dictionaries rather
+  than one multi-node update.
+- The learner added a work-in-progress `print_response()` view to the dedicated
+  tool-loop runner and a commented final-response scaffold to the graph. The
+  formatter unwraps the single streamed node update and adds a separated
+  dialogue-style display, but it does not yet distinguish ordinary
+  `AIMessage` answers from tool-request messages or `ToolMessage` results. A
+  deterministic probe therefore printed a direct answer correctly, printed an
+  empty answer block for a tool request, and mislabeled tool result `2` as an
+  AI response. The raw streamed updates remain the reliable interface.
 - The unused placeholder `langgraph-learning` console script was removed;
   runners are invoked explicitly as Python modules. Automated graph tests have
   not been added yet.
@@ -175,13 +191,19 @@ failure modes.
 
 ## Next action
 
-Start the next session without changing code. Open
-`src/langgraph_learning/graphs/tool_loop.py` together with
-`src/langgraph_learning/runners/tool_loop.py`, revisit the observed
-`Hello world` stream, and let the learner ask the unresolved question about
-that exact execution before advancing. Remember that
-`src/langgraph_learning/runners/playground.py` is the editable workbench for
-ad hoc inspection, while every completed interactive slice keeps its dedicated
-runner. Once the current behavior is clear, add a separate bounded finalization
-node after round accounting so the model can turn the completed `ToolMessage`
-into a natural-language answer and still terminate without another tool round.
+Open `src/langgraph_learning/runners/tool_loop.py` and finish the learner's
+`print_response()` experiment before changing graph topology. Import
+`AIMessage`, name the extracted list `messages`, and render only a nonempty
+`AIMessage` whose `tool_calls` list is empty. Re-run the four credential-free
+synthetic cases—direct answer, model tool request, tool result, and
+counter-only update—and require output only for the direct answer.
+
+After that visible behavior is understood and verified, open
+`src/langgraph_learning/graphs/tool_loop.py` and implement the separate bounded
+final-response node. Its first experiment should invoke the unbound primary
+model with the accumulated messages after round accounting, then terminate.
+The primary uncertainty is whether the NVIDIA endpoint accepts the historical
+assistant tool call and matching `ToolMessage` without resending the tool
+schema; verify that with one credentialed run before choosing a provider-level
+`tool_choice="none"` fallback. Keep `runners/playground.py` as the editable ad
+hoc inspection file rather than replacing the dedicated runner.

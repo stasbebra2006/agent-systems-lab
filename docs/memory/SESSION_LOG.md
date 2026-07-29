@@ -310,3 +310,25 @@
   complements but never replaces dedicated runners for completed slices.
 - Only after resolving the question should work proceed to the separate,
   bounded finalization node.
+
+## 2026-07-29 — Stream-update mechanics and response-view checkpoint
+
+- Revisited the one-round runner after the learner confirmed that a general
+  greeting produced a direct model answer rather than another tool request.
+- Traced the installed `ToolNode` inside graph-supplied runtime: it reads the
+  latest `AIMessage.tool_calls`, executes the registered local tool, returns a
+  matching `ToolMessage` in a partial `messages` update, and relies on
+  `add_messages` to merge that result into accumulated graph history.
+- Verified with a temporary parallel graph that
+  `stream_mode="updates"` returns a generator and emits separate node-name
+  wrappers around partial state dictionaries, including for nodes in the same
+  parallel step.
+- Preserved the learner's work-in-progress `print_response()` formatter and
+  commented final-response scaffold. Lock consistency, source compilation,
+  Pyright, and whitespace checks passed. A credential-free synthetic probe
+  showed that the formatter correctly prints a direct answer but also emits an
+  empty answer block for a tool request and labels a `ToolMessage("2")` as an
+  AI response.
+- Next session should first add the `AIMessage`/no-tool-call/content filter and
+  repeat the four-case synthetic probe. Only then should the graph gain a
+  bounded final-response node and credentialed provider-compatibility test.
