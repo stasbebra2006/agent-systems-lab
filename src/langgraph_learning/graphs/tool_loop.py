@@ -21,6 +21,10 @@ class ModelUpdate(TypedDict):
     messages: list[AnyMessage]
 
 
+class ToolRoundUpdate(TypedDict):
+    tool_rounds: int
+
+
 def call_model(state: ToolLoopState) -> ModelUpdate:
     model = create_primary_model()
     model_with_tools = model.bind_tools([count_words])
@@ -51,14 +55,14 @@ def route_model_output(state: ToolLoopState) -> Literal["tools", "end"]:
 tool_node = ToolNode([count_words])
 
 
-class ToolRoundUpdate(TypedDict):
-    tool_rounds: int
-
-
 def increment_tool_round(state: ToolLoopState) -> ToolRoundUpdate:
     return {
         "tool_rounds": state["tool_rounds"] + 1,
     }
+
+
+# def final_response(state: ToolLoopState) -> ModelUpdate:
+#     pass
 
 
 builder = StateGraph(ToolLoopState)
