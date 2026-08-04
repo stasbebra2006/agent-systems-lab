@@ -61,8 +61,24 @@ def increment_tool_round(state: ToolLoopState) -> ToolRoundUpdate:
     }
 
 
-# def final_response(state: ToolLoopState) -> ModelUpdate:
-#     pass
+def route_after_tool_round(
+    state: ToolLoopState,
+) -> Literal["model", "final_response"]:
+    if state["tool_rounds"] < MAX_TOOL_ROUNDS:
+        return "model"
+
+    return "final_response"
+
+
+def final_response(state: ToolLoopState) -> ModelUpdate:
+    model = create_primary_model()
+
+    response = model.invoke(
+        input=state["messages"],
+        thinking_mode=False,
+    )
+
+    return {"messages": [response]}
 
 
 builder = StateGraph(ToolLoopState)
@@ -70,6 +86,7 @@ builder = StateGraph(ToolLoopState)
 builder.add_node("model", call_model)
 builder.add_node("tools", tool_node)
 builder.add_node("increment_tool_round", increment_tool_round)
+builder.add_node("final_response", final_response)
 
 builder.add_edge(START, "model")
 builder.add_conditional_edges(
@@ -83,6 +100,14 @@ builder.add_conditional_edges(
 
 
 builder.add_edge("tools", "increment_tool_round")
-builder.add_edge("increment_tool_round", END)
+builder.add_conditional_edges(
+    "increment_tool_round",
+    route_after_tool_round,
+    {
+        "model": "model",
+        "final_response": "final_response",
+    },
+)
+builder.add_edge("final_response", END)
 
 tool_graph = builder.compile()

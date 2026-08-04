@@ -32,19 +32,22 @@ framework in raw LangGraph.
 - A pinned NVIDIA-hosted model integration with response and usage metadata.
 - A deterministic local `count_words` tool and a verified manual
   model → tool → `ToolMessage` → model round trip.
-- A compiled one-round tool graph topology with model routing, `ToolNode`
-  execution, explicit round accounting, and a temporary hard stop before any
-  second model call. Its credentialed runner has produced and executed a
-  structured tool request with streamed per-node updates.
+- A compiled multi-round tool graph with model routing, `ToolNode` execution,
+  explicit round accounting, natural termination, and forced final-answer
+  synthesis after at most three tool rounds. Its credentialed runner has
+  executed a structured tool request and naturally exited after the result.
 - A locked Python 3.12 environment, sanitized credential template, and written
   model/secret policy.
+- A credential-free pytest baseline covering tool routing, round accounting,
+  response rendering/filtering, compiled bounded topology, and deterministic
+  three-round execution through forced finalization.
 
-The current checkpoint remains the observed one-round
-`model -> tools -> increment_tool_round -> END` stream. A readable response
-view is in progress in its dedicated runner; the raw per-node updates remain
-the canonical output until that view filters completed model answers from
-tool-protocol messages. The next protocol step is a bounded finalization node
-that turns the completed tool result into a natural-language answer.
+The current checkpoint is a bounded cycle:
+`model -> tools -> increment_tool_round -> model` while fewer than three tool
+rounds have completed. An ordinary model answer terminates naturally; reaching
+the limit routes to the unbound `final_response` node and then `END`. A
+credentialed NVIDIA run naturally exited after one tool round, while a
+scripted-model test verified exactly three rounds followed by forced synthesis.
 
 ## Target system
 
@@ -148,14 +151,18 @@ Run the isolated structured-tool protocol:
 uv run --env-file .env python -m langgraph_learning.runners.manual_tool_call
 ```
 
-Stream the temporary one-round tool graph:
+Stream the bounded tool graph:
 
 ```sh
 uv run --env-file .env python -m langgraph_learning.runners.tool_loop
 ```
 
-These commands make external model requests. The main automated test suite will
-remain deterministic and credential-free as it is introduced.
+These commands make external model requests. Run the deterministic,
+credential-free test suite separately:
+
+```sh
+uv run pytest
+```
 
 ## Repository structure
 
@@ -166,6 +173,7 @@ src/langgraph_learning/
 ├── tools/                    # focused local tool modules
 ├── models.py                 # shared model selection and construction
 └── __init__.py               # package marker
+tests/                        # deterministic graph and runner behavior
 docs/ROADMAP.md               # phases, deliverables, and exit criteria
 docs/LEARNING_WORKFLOW.md     # one-change-at-a-time learning loop
 docs/MODEL_ACCESS.md          # provider, reproducibility, and secret policy
@@ -210,4 +218,6 @@ current official documentation.
 This is an evolving learning and portfolio repository, not a production-ready
 agent platform. Credentialed examples can consume provider quota, and future
 runtime/security claims will be accompanied by reproducible demonstrations
+before they are presented as completed.
+ations
 before they are presented as completed.

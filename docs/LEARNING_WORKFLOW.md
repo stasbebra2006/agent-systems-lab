@@ -1,7 +1,8 @@
 # Learning Workflow
 
-This repository is a hands-on learning project. The learner writes and runs the
-code; the assistant explains, reviews, and helps debug it.
+This repository is an interactive learning project. The assistant explains and
+implements one small step at a time; the learner reviews the concrete change and
+observed result, asks questions, and acknowledges before the assistant proceeds.
 
 ## Working cycle
 
@@ -14,9 +15,12 @@ code; the assistant explains, reviews, and helps debug it.
 5. Show every required import, dependency, file, and command explicitly.
 6. Explain what the new construct does, why it is needed, and what is merely a
    project preference rather than a requirement.
-7. Let the learner type and run the change.
-8. Inspect the real code or output before continuing.
-9. Move forward when the learner asks for the next step.
+7. Have the assistant implement and run the change.
+8. Inspect the real code or output together.
+9. Pause for learner review, questions, and acknowledgment before continuing.
+10. When surveying a low-level mechanism for intuition, stop after one thin
+    runnable probe and observable result unless a concrete failure justifies
+    deeper engineering or tests.
 
 When an interactive graph or protocol reaches a working checkpoint, completing
 that slice includes a dedicated module under `src/langgraph_learning/runners/`

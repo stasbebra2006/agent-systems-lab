@@ -14,8 +14,9 @@ project suitable for a public GitHub portfolio.
 - Use the LangChain Academy Python course as a coverage map, not a requirement
   to watch every video.
 - Learn interactively by extending one coherent project.
-- Follow the learner-driven, one-change-at-a-time process documented in
-  `docs/LEARNING_WORKFLOW.md`.
+- Follow the interactive, one-change-at-a-time process documented in
+  `docs/LEARNING_WORKFLOW.md`: the assistant implements and verifies each step,
+  then pauses for learner review and acknowledgment.
 - Treat a dedicated interactive runner as part of completing each runnable
   graph or protocol slice; use `runners/playground.py` only for temporary
   inspection.
@@ -96,6 +97,7 @@ failure modes.
   local virtual environment and committed lockfile.
 - LangGraph 1.2.9, LangChain Core 1.4.9, and
   `langchain-nvidia-ai-endpoints` 1.4.3 are direct application dependencies.
+  Pytest 9.1.1 is isolated in the uv `dev` dependency group.
 - `src/langgraph_learning/models.py` owns the pinned primary model ID and model
   factory. Graphs and runners import this shared provider construction directly,
   so one graph module no longer supplies common infrastructure to another.
@@ -140,20 +142,20 @@ failure modes.
 - `src/langgraph_learning/graphs/tool_loop.py` defines reducer-backed message
   state plus a `tool_rounds` counter, a tool-bound model node, deterministic
   routing from an `AIMessage` to tools or termination, a `ToolNode` for
-  `count_words`, and a separate round-increment node. Its compiled temporary
-  topology routes `START -> model`, conditionally terminates or executes
-  `tools -> increment_tool_round`, and then hard-stops before a second model
-  call. The node registrations and rendered topology were verified locally;
-  synthetic messages previously verified both routing branches, imports and
-  Pyright pass.
-- `src/langgraph_learning/runners/tool_loop.py` creates the typed initial state
-  and streams individual node updates through the temporary one-round graph.
-  A credentialed run on 2026-07-28 with `Hello world` produced a normalized
-  `count_words` call, executed it locally with result `2`, emitted the matching
-  `ToolMessage`, incremented `tool_rounds` to `1`, and stopped as designed. The
-  model call used 271 input and 26 output tokens. `runners/playground.py` is the
-  editable inspection workbench and currently renders this topology without a
-  provider request.
+  `count_words`, explicit round accounting, and an unbound final-response model
+  node. Its compiled topology returns from round accounting to the tool-bound
+  model while `tool_rounds < MAX_TOOL_ROUNDS`, naturally ends on a normal model
+  answer, and routes to the unbound finalizer at the three-round limit. The
+  finalizer prevents another tool request and guarantees bounded termination.
+- `src/langgraph_learning/runners/tool_loop.py` creates the typed initial state,
+  streams individual node updates, and separately renders only nonempty
+  `AIMessage` values with no tool calls. Credential-free probes verified that a
+  direct answer renders while a model tool request, `ToolMessage`, and
+  counter-only update remain silent. A credentialed run on 2026-07-29 executed
+  `count_words("Hello my friend.")`, returned `3`, incremented `tool_rounds` to
+  `1`, and produced a final natural-language answer. NVIDIA accepted the
+  accumulated historical tool protocol on the unbound finalization call, which
+  used 73 input and 27 output tokens.
 - Runtime inspection on 2026-07-29 established the exact update boundary:
   `CompiledStateGraph.stream(..., stream_mode="updates")` returns a generator
   that emits a node-name wrapper around that node's partial state update.
@@ -162,17 +164,18 @@ failure modes.
   and `add_messages` merges that update into the graph's accumulated history.
   Even parallel nodes were observed as separate streamed dictionaries rather
   than one multi-node update.
-- The learner added a work-in-progress `print_response()` view to the dedicated
-  tool-loop runner and a commented final-response scaffold to the graph. The
-  formatter unwraps the single streamed node update and adds a separated
-  dialogue-style display, but it does not yet distinguish ordinary
-  `AIMessage` answers from tool-request messages or `ToolMessage` results. A
-  deterministic probe therefore printed a direct answer correctly, printed an
-  empty answer block for a tool request, and mislabeled tool result `2` as an
-  AI response. The raw streamed updates remain the reliable interface.
+- The dedicated tool-loop response view is complete for the current protocol:
+  it unwraps each single-node streamed update and renders only a completed,
+  nonempty `AIMessage` with no tool calls. Raw streamed updates remain visible
+  as the canonical inspection interface alongside the user-facing answer.
 - The unused placeholder `langgraph-learning` console script was removed;
-  runners are invoked explicitly as Python modules. Automated graph tests have
-  not been added yet.
+  runners are invoked explicitly as Python modules.
+- `tests/test_tool_loop.py` provides the deterministic automated baseline:
+  eleven pytest cases cover model and post-tool routing outcomes, immutable
+  partial round accounting, completed-answer rendering, three filtered protocol
+  updates, required bounded-cycle edges, and a full three-tool-round execution
+  with a scripted model plus the real local `ToolNode`. The suite makes no
+  provider requests.
 - An NVIDIA Build account is available and displayed a development limit of up
   to 40 requests per minute on 2026-07-23. A dedicated local development
   credential is stored only in an ignored, permission-`600` `.env` and is
@@ -191,19 +194,14 @@ failure modes.
 
 ## Next action
 
-Open `src/langgraph_learning/runners/tool_loop.py` and finish the learner's
-`print_response()` experiment before changing graph topology. Import
-`AIMessage`, name the extracted list `messages`, and render only a nonempty
-`AIMessage` whose `tool_calls` list is empty. Re-run the four credential-free
-synthetic cases—direct answer, model tool request, tool result, and
-counter-only update—and require output only for the direct answer.
+Survey the remaining Phase 1 mechanisms with thin vertical probes rather than
+production-grade subsystems: controlled tool failure; timeout, retry, and rate
+limit behavior; checkpointing with isolated thread IDs; then interrupt/resume.
+For each, implement the smallest runnable example, inspect its control/state
+behavior, and stop once the mechanism is predictable unless a concrete failure
+requires a focused test.
 
-After that visible behavior is understood and verified, open
-`src/langgraph_learning/graphs/tool_loop.py` and implement the separate bounded
-final-response node. Its first experiment should invoke the unbound primary
-model with the accumulated messages after round accounting, then terminate.
-The primary uncertainty is whether the NVIDIA endpoint accepts the historical
-assistant tool call and matching `ToolMessage` without resending the tool
-schema; verify that with one credentialed run before choosing a provider-level
-`tool_choice="none"` fallback. Keep `runners/playground.py` as the editable ad
-hoc inspection file rather than replacing the dedicated runner.
+Begin with one controlled tool-failure experiment using the installed
+`ToolNode` behavior. After the four-mechanism survey, move to Deep Agents. Keep
+`runners/playground.py` as the ad hoc inspection file rather than replacing the
+dedicated runner.

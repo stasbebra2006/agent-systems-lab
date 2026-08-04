@@ -65,18 +65,24 @@ concrete action, experiment, or result.
 ## Learning and execution
 
 - Use two layers: compact global model first, then one concrete next action.
-- Preserve the learner-driven, one-change-at-a-time workflow in
-  `docs/LEARNING_WORKFLOW.md`.
+- Preserve the interactive, one-change-at-a-time workflow in
+  `docs/LEARNING_WORKFLOW.md`: assistant implementation followed by learner
+  review and acknowledgment.
 - Prefer vertical learning slices: connect each new construct to the smallest
   safe executable path instead of accumulating disconnected definitions for
   later integration.
-- Each learner-written change should normally produce an immediate observable
-  effect through streamed state, command output, a deterministic probe, or a
-  focused test. State that expected evidence before asking for the edit.
-- Inspect actual code and output before advancing.
+- The assistant should implement each small change and produce an immediate
+  observable effect through streamed state, command output, a deterministic
+  probe, or a focused test. State the expected evidence before editing.
+- Pause after implementation and verification so the learner can review, ask
+  questions, and acknowledge before advancing.
 - Keep internal diagnostics distinct from observed project behavior.
 - Explain framework internals only to the depth needed to understand, predict,
   or debug the current mechanism.
+- Preserve breadth without overbuilding: for mechanisms being surveyed before a
+  higher-level framework, prefer one thin runnable probe and enough inspection
+  to form intuition. Add rigorous infrastructure or broad tests only when a
+  concrete risk, failure, or application requirement warrants them.
 
 ## Analysis close
 

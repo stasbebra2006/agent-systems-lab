@@ -332,3 +332,66 @@
 - Next session should first add the `AIMessage`/no-tool-call/content filter and
   repeat the four-case synthetic probe. Only then should the graph gain a
   bounded final-response node and credentialed provider-compatibility test.
+
+## 2026-07-29 — Interactive learning roles changed
+
+- Changed the working mode from learner-typed implementation to assistant-led
+  implementation in small, visible checkpoints.
+- The assistant now explains each step and its expected evidence, edits and
+  verifies it, then pauses for learner review, questions, and acknowledgment.
+- The learner remains the reviewer and decision-maker; advancing without an
+  acknowledgment is outside the agreed cadence.
+
+## 2026-07-29 — One-round tool path finalized
+
+- Completed the runner's response filter: only nonempty `AIMessage` answers
+  without tool calls render; deterministic probes confirmed tool requests,
+  tool results, and counter-only updates remain silent.
+- Added and wired an unbound `final_response` model node after round accounting,
+  yielding `model -> tools -> increment_tool_round -> final_response -> END`.
+- Verified the complete credentialed path with `count_words("Hello my friend.")`:
+  the tool returned `3`, and NVIDIA accepted the historical assistant tool call
+  plus matching `ToolMessage` without tools rebound on the final request.
+- Lock consistency, source compilation, whitespace, and the focused diff passed.
+  The next checkpoint is deterministic automated coverage before implementing
+  the bounded multi-round path.
+
+## 2026-07-29 — First deterministic pytest baseline
+
+- Added pytest 9.1.1 to uv's development dependency group without changing
+  application runtime dependencies.
+- Added eight credential-free cases covering both model-routing outcomes,
+  immutable partial round accounting, completed-answer rendering, silent tool
+  request/result/counter updates, and required compiled topology edges.
+- Explicitly annotated synthetic states as `ToolLoopState`; Mason Pyright then
+  reported zero errors. Confirmed that a stale running Pyright client can retain
+  a pre-install package index and should be restarted after dependency changes.
+- Final verification passed: lock consistency, source/test compilation, eight
+  tests, zero Pyright errors, and whitespace. The next step is designing and
+  testing post-tool routing for the bounded multi-round loop.
+
+## 2026-07-29 — Bounded multi-round loop verified
+
+- Added a post-tool router that returns to the tool-bound model while fewer than
+  three rounds have completed and forces the unbound finalizer at the limit.
+- Replaced the fixed one-round edge with the tested conditional cycle and added
+  topology coverage for both post-tool destinations.
+- Added a scripted model and deterministic full-graph test using the real local
+  `ToolNode`; it executed results `1`, `2`, and `3`, reached exactly three tool
+  rounds, then made one forced finalization call.
+- A credentialed NVIDIA run exercised the natural early-exit branch:
+  `model -> tools -> increment_tool_round -> model -> END`, producing a normal
+  answer after one tool result without invoking `final_response`.
+- Final checks passed with eleven tests and zero Pyright errors. The next
+  reliability boundary is controlled tool failure.
+
+## 2026-07-29 — Remaining LangGraph depth recalibrated
+
+- Chose to survey all remaining Phase 1 mechanisms rather than either skipping
+  them or engineering each to production depth.
+- The remaining sequence is controlled tool failure; timeout/retry/rate-limit
+  intuition; checkpoint and thread isolation; then interrupt/resume.
+- Each topic should use one thin runnable probe with visible evidence and stop
+  once its behavior is predictable. Broad tests and infrastructure are deferred
+  until a concrete failure or the higher-level application requires them.
+- Deep Agents follows this compact mechanism survey.
