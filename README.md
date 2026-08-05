@@ -36,6 +36,9 @@ framework in raw LangGraph.
   explicit round accounting, natural termination, and forced final-answer
   synthesis after at most three tool rounds. Its credentialed runner has
   executed a structured tool request and naturally exited after the result.
+- Credential-free reliability probes showing that `ToolNode` propagates
+  exceptions from valid tool execution by default and that a LangGraph
+  `RetryPolicy` can retry a failed node without committing failed attempts.
 - A locked Python 3.12 environment, sanitized credential template, and written
   model/secret policy.
 - A credential-free pytest baseline covering tool routing, round accounting,
@@ -121,11 +124,14 @@ printf '%s\n' \
 The streamed output should show the initial state, the router selecting the
 `research` branch, and the final accumulated human/AI message history.
 
-Render the current tool-loop topology from the editable inspection workbench:
+Run the current retry probe from the editable inspection workbench:
 
 ```sh
 uv run python -m langgraph_learning.runners.playground
 ```
+
+The output should show three node attempts but only one streamed update from the
+successful attempt; no provider credential is required.
 
 ### Credentialed NVIDIA demos
 
@@ -218,6 +224,4 @@ current official documentation.
 This is an evolving learning and portfolio repository, not a production-ready
 agent platform. Credentialed examples can consume provider quota, and future
 runtime/security claims will be accompanied by reproducible demonstrations
-before they are presented as completed.
-ations
 before they are presented as completed.

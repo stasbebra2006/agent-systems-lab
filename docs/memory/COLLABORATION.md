@@ -65,17 +65,23 @@ concrete action, experiment, or result.
 ## Learning and execution
 
 - Use two layers: compact global model first, then one concrete next action.
-- Preserve the interactive, one-change-at-a-time workflow in
-  `docs/LEARNING_WORKFLOW.md`: assistant implementation followed by learner
-  review and acknowledgment.
+- Preserve the interactive, one-change-at-a-time architect workflow in
+  `docs/LEARNING_WORKFLOW.md`: shared problem framing and evidence criteria,
+  learner-owned consequential decisions, assistant implementation, and joint
+  interpretation.
 - Prefer vertical learning slices: connect each new construct to the smallest
   safe executable path instead of accumulating disconnected definitions for
   later integration.
-- The assistant should implement each small change and produce an immediate
-  observable effect through streamed state, command output, a deterministic
-  probe, or a focused test. State the expected evidence before editing.
-- Pause after implementation and verification so the learner can review, ask
-  questions, and acknowledge before advancing.
+- Before implementation, expose the current problem, why it matters, the
+  relevant objects and constraints, and any meaningful unresolved choice. Let
+  the learner develop hypotheses, choose experiments or trade-offs, and predict
+  outcomes; do not reduce participation to reviewing a completed design.
+- The assistant should translate decisions into each small code change and
+  produce an immediate observable effect through streamed state, command output,
+  a deterministic probe, or a focused test. Handle repetitive inspection and
+  implementation work, then inspect and interpret the evidence together.
+- Pause at genuine decision and evidence boundaries. Do not manufacture trivial
+  choices when the next step is purely mechanical.
 - Keep internal diagnostics distinct from observed project behavior.
 - Explain framework internals only to the depth needed to understand, predict,
   or debug the current mechanism.

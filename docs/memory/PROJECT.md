@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-28
+Last updated: 2026-08-05
 
 ## Goal
 
@@ -164,6 +164,16 @@ failure modes.
   and `add_messages` merges that update into the graph's accumulated history.
   Even parallel nodes were observed as separate streamed dictionaries rather
   than one multi-node update.
+- A thin credential-free controlled-failure graph inspected on 2026-08-05
+  confirmed that the installed `ToolNode` converts malformed tool arguments to
+  an error `ToolMessage` by default but re-raises exceptions from valid tool
+  execution. The latter emits no completed `tools` update and escapes the graph
+  boundary.
+- `src/langgraph_learning/runners/playground.py` currently contains the next thin
+  reliability probe: a node raises `ConnectionError` twice and succeeds on its
+  third attempt under an explicit three-attempt `RetryPolicy`. Runtime inspection
+  showed all three executions but only one streamed update, confirming that
+  failed attempts did not commit graph state.
 - The dedicated tool-loop response view is complete for the current protocol:
   it unwraps each single-node streamed update and renders only a completed,
   nonempty `AIMessage` with no tool calls. Raw streamed updates remain visible
@@ -194,14 +204,16 @@ failure modes.
 
 ## Next action
 
-Survey the remaining Phase 1 mechanisms with thin vertical probes rather than
-production-grade subsystems: controlled tool failure; timeout, retry, and rate
-limit behavior; checkpointing with isolated thread IDs; then interrupt/resume.
-For each, implement the smallest runnable example, inspect its control/state
-behavior, and stop once the mechanism is predictable unless a concrete failure
-requires a focused test.
+Continue the remaining Phase 1 survey with thin vertical probes rather than
+production-grade subsystems: finish timeout and local rate-limit behavior;
+checkpointing with isolated thread IDs; then interrupt/resume. For each, frame
+the problem and meaningful experiment choice with the learner, implement the
+smallest runnable example, inspect its control/state behavior together, and stop
+once the mechanism is predictable unless a concrete failure requires a focused
+test.
 
-Begin with one controlled tool-failure experiment using the installed
-`ToolNode` behavior. After the four-mechanism survey, move to Deep Agents. Keep
-`runners/playground.py` as the ad hoc inspection file rather than replacing the
-dedicated runner.
+Begin by choosing how to isolate and observe a credential-free timeout, then
+inspect local request pacing without intentionally provoking provider 429s.
+After the remaining mechanism groups, move to Deep Agents. Keep
+`runners/playground.py` as the ad hoc inspection file rather than replacing
+dedicated runners.

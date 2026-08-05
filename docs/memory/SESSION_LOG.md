@@ -395,3 +395,45 @@
   once its behavior is predictable. Broad tests and infrastructure are deferred
   until a concrete failure or the higher-level application requires them.
 - Deep Agents follows this compact mechanism survey.
+
+## 2026-08-05 — Controlled tool-failure behavior observed
+
+- Replaced the ad hoc playground topology rendering with a credential-free,
+  one-node graph whose synthetic valid tool call deliberately raises
+  `ValueError` during local execution.
+- Confirmed the installed `ToolNode` default policy: argument-validation failures
+  are converted to error `ToolMessage` values, while exceptions raised inside a
+  valid tool invocation are re-raised.
+- The compiled probe emitted no `tools` update before the execution exception
+  escaped the graph boundary; the runner catches it only to render that evidence.
+- Eleven tests, source/test compilation, lock consistency, Pyright, whitespace,
+  and the focused diff passed. The next survey mechanism is timeout, retry, and
+  rate-limit behavior.
+
+## 2026-08-05 — Learner role elevated from reviewer to architect
+
+- Corrected the interactive workflow after the learner identified that
+  assistant-led implementation followed only by acknowledgment was too passive.
+- The learner now explicitly owns problem framing, hypotheses, consequential
+  experiment and architecture choices, trade-offs, predictions, and evidence
+  interpretation; the assistant owns repetitive inspection, code translation,
+  execution, and verification.
+- Checkpoints now occur at genuine decision and evidence boundaries rather than
+  ceremonial approval points, without manufacturing trivial choices from purely
+  mechanical work.
+
+## 2026-08-05 — Node retry semantics observed
+
+- Inspected the installed reliability layers: `ChatNVIDIA` has a 60-second
+  transport timeout by default, while the current application configures no
+  model retry or local rate limiter; LangGraph separately supports per-node
+  retry and timeout policies.
+- Replaced the temporary failure workbench with a credential-free retry probe.
+  Its node raises `ConnectionError` on attempts one and two, then succeeds under
+  an explicit three-attempt `RetryPolicy` with short deterministic backoff.
+- The run displayed three node executions but only the successful attempt
+  produced a streamed state update, demonstrating that failed attempts do not
+  commit node updates.
+- Eleven tests, compilation, lock consistency, Pyright, and whitespace passed.
+  The next reliability decision is how to isolate and observe timeout behavior,
+  followed by local rate limiting without intentionally provoking provider 429s.

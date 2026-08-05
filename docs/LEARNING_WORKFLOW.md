@@ -1,23 +1,32 @@
 # Learning Workflow
 
-This repository is an interactive learning project. The assistant explains and
-implements one small step at a time; the learner reviews the concrete change and
-observed result, asks questions, and acknowledges before the assistant proceeds.
+This repository is an interactive learning project. The learner is the active
+architect and problem-solving partner: they help frame problems, develop
+hypotheses, choose experiments and trade-offs, and interpret evidence. The
+assistant handles repetitive inspection, translates decisions into code, runs
+verification, and explains implementation details as needed.
 
 ## Working cycle
 
 1. Inspect the current repository state before suggesting the next action.
-2. Introduce one small concept or code change at a time.
-3. Prefer a vertical slice: attach the change to the smallest safe runnable
+2. Frame the current problem: why it matters, concrete objects, ownership,
+   constraints, known facts, and the unresolved question.
+3. At genuine design boundaries, ask the learner to propose a hypothesis,
+   choose an experiment or trade-off, or predict the outcome. Offer compact
+   options only when they clarify a real choice; do not turn mechanics into a
+   quiz.
+4. Introduce one small concept or code change at a time.
+5. Prefer a vertical slice: attach the change to the smallest safe runnable
    path rather than building disconnected components for later assembly.
-4. State the output, state transition, or test result the learner should
-   observe immediately after the change.
-5. Show every required import, dependency, file, and command explicitly.
-6. Explain what the new construct does, why it is needed, and what is merely a
-   project preference rather than a requirement.
-7. Have the assistant implement and run the change.
-8. Inspect the real code or output together.
-9. Pause for learner review, questions, and acknowledgment before continuing.
+6. Agree on the output, state transition, or test result that would distinguish
+   the competing hypotheses or demonstrate success.
+7. Have the assistant handle repetitive inspection, implement the chosen change,
+   and run it while making required imports, dependencies, files, and commands
+   visible.
+8. Inspect the real code or output together; ask the learner to interpret what
+   it establishes before supplying the missing explanation.
+9. Pause at the next meaningful decision or evidence boundary, not merely for a
+   ceremonial acknowledgment.
 10. When surveying a low-level mechanism for intuition, stop after one thin
     runnable probe and observable result unless a concrete failure justifies
     deeper engineering or tests.
