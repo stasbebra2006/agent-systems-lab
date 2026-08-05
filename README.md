@@ -179,8 +179,8 @@ uv run pytest
 ```text
 src/langgraph_learning/
 ├── graphs/                   # reusable states, nodes, routes, and graph topology
-├── runners/                  # executable streams, protocol probes, and playground
-├── tools/                    # focused local tool modules
+├── runners/                  # inputs, execution, streaming, and output rendering
+├── tools/                    # focused local tool definitions
 ├── models.py                 # shared model selection and construction
 └── __init__.py               # package marker
 tests/                        # deterministic graph and runner behavior

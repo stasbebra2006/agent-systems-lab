@@ -452,3 +452,32 @@
 - Corrected the learning process: temporary probes are learner-facing code and
   must still be introduced incrementally. The next step is to revisit the timeout
   runner's code before advancing to local rate limiting.
+
+## 2026-08-05 — Reliability code responsibility boundaries restored
+
+- Audited `graphs/`, `runners/`, and `tools/` and found that only the three
+  reliability runners combined graph definitions with executable adapters.
+- Extracted retry, timeout, and tool-failure state, nodes, policies, and compiled
+  topology into matching `graphs/` modules; moved the deliberately failing tool
+  into `tools/deliberate_failure.py`.
+- Reduced each matching runner to input setup, graph execution, and output or
+  exception rendering without changing its module command or observed behavior.
+- Re-ran all three probes, source compilation, whitespace checks, and eleven
+  credential-free tests successfully. The next step remains an incremental
+  walkthrough of timeout behavior before local rate limiting.
+
+## 2026-08-05 — Retry walkthrough handoff
+
+- Reviewed the failure probe conclusion: malformed arguments can become error
+  `ToolMessage` values, but an exception from valid tool execution escapes and
+  an outer runner catch reports rather than recovers the graph.
+- Began reconstructing `graphs/retry.py`: covered state, the graph factory,
+  closure-owned attempt state and `nonlocal`, the optional runner observation
+  callback, deterministic failures on attempts one and two, and node-attached
+  `RetryPolicy` behavior.
+- Explained jitter as randomized retry-delay variation and `max_interval` as the
+  backoff cap; both retry intervals are `0.1` with jitter disabled to keep this
+  probe fast and deterministic.
+- Stop point: continue the retry graph walkthrough immediately after
+  `max_interval`, then inspect the retry runner and observed commit behavior.
+  The graph/runner/tool reorganization is verified but remains uncommitted.

@@ -1,49 +1,12 @@
-"""Inspect node retry attempts and committed graph updates."""
+"""Run the node-retry graph and display attempts and committed updates."""
 
-from typing import TypedDict
-
-from langgraph.graph import END, START, StateGraph
-from langgraph.types import RetryPolicy
-
-
-class RetryProbeState(TypedDict):
-    result: str
-
-
-attempt_count = 0
-
-
-def flaky_node(state: RetryProbeState) -> RetryProbeState:
-    global attempt_count
-    del state
-    attempt_count += 1
-    print(f"attempt {attempt_count}")
-
-    if attempt_count < 3:
-        raise ConnectionError("Temporary connection failure")
-
-    return {"result": "success"}
-
-
-builder = StateGraph(RetryProbeState)
-builder.add_node(
-    "flaky_node",
-    flaky_node,
-    retry_policy=RetryPolicy(
-        initial_interval=0.1,
-        max_interval=0.1,
-        max_attempts=3,
-        jitter=False,
-    ),
-)
-builder.add_edge(START, "flaky_node")
-builder.add_edge("flaky_node", END)
-retry_probe = builder.compile()
+from langgraph_learning.graphs.retry import build_retry_probe
 
 
 def main() -> None:
-    global attempt_count
-    attempt_count = 0
+    retry_probe = build_retry_probe(
+        on_attempt=lambda attempt: print(f"attempt {attempt}"),
+    )
 
     for update in retry_probe.stream(
         {"result": "pending"},

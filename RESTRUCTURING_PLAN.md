@@ -20,10 +20,14 @@ agent-systems-lab/
 │       ├── models.py               # Primary model selection and construction
 │       ├── tools/                  # Focused local tool modules
 │       │   ├── __init__.py
+│       │   ├── deliberate_failure.py
 │       │   └── word_counter.py
 │       ├── graphs/                 # Reusable LangGraph definitions
 │       │   ├── __init__.py
+│       │   ├── retry.py
 │       │   ├── routing.py
+│       │   ├── timeout.py
+│       │   ├── tool_failure.py
 │       │   └── tool_loop.py
 │       └── runners/                # Executable inspection entry points
 │           ├── __init__.py
@@ -50,8 +54,9 @@ agent-systems-lab/
 | `src/langgraph_learning/demos/model_call.py` | `src/langgraph_learning/runners/model_call.py` | Distinguish executable adapters from reusable definitions |
 | `src/langgraph_learning/demos/manual_tool_call.py` | `src/langgraph_learning/runners/manual_tool_call.py` | Distinguish executable adapters from reusable definitions |
 | `src/langgraph_learning/demos/routing.py` | `src/langgraph_learning/runners/routing.py` | Distinguish executable adapters from reusable definitions |
-| `src/langgraph_learning/demos/playground.py` | `src/langgraph_learning/runners/retry.py`, `timeout.py`, and `tool_failure.py` | Preserve useful reliability probes under descriptive names |
-| *(New)* | `src/langgraph_learning/runners/tool_loop.py` | Stream the current one-round graph |
+| `src/langgraph_learning/demos/playground.py` | matching `graphs/` and `runners/` modules for retry, timeout, and tool failure | Preserve useful probes while separating topology from execution adapters |
+| *(New)* | `src/langgraph_learning/tools/deliberate_failure.py` | Keep the probe tool under tool ownership |
+| *(New)* | matching `graphs/tool_loop.py` and `runners/tool_loop.py` | Separate reusable topology from interactive streaming |
 
 ---
 
@@ -60,17 +65,15 @@ agent-systems-lab/
 1. Created `tools/` and `runners/` packages.
 2. Moved and renamed existing files without changing their established runtime
    behavior.
-3. Added a stable tool-loop runner and dedicated credential-free reliability
-   runners for tool failure, retry, and timeout behavior.
+3. Added stable graph/runner pairs for the tool loop and the credential-free
+   tool-failure, retry, and timeout probes; focused tool definitions remain in
+   `tools/`.
 4. Updated imports, public commands, package metadata, and persistent memory.
 5. Removed the unused placeholder console script; runners use explicit
    `python -m` module paths.
 
-## Deferred Testing Step
+## Testing
 
-Automated tests will be introduced with the next behavior that needs them,
-rather than creating empty test hierarchies and fixtures in advance. At that
-point, add `pytest` as a locked development dependency, start with the
-deterministic word-count tool, and add graph tests with controlled model
-behavior. Pyright currently remains the Mason-managed installation documented
-in project memory.
+Pytest is a locked development dependency. Deterministic graph tests use
+controlled model behavior and make no provider requests. Pyright remains the
+Mason-managed installation documented in project memory.

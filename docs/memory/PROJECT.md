@@ -169,11 +169,11 @@ failure modes.
   an error `ToolMessage` by default but re-raises exceptions from valid tool
   execution. The latter emits no completed `tools` update and escapes the graph
   boundary.
-- The reliability mechanisms now have separate credential-free runners instead
-  of overwriting one playground: `runners/tool_failure.py` preserves the valid
-  tool-execution failure, `runners/retry.py` preserves the three-attempt
-  `RetryPolicy` probe, and `runners/timeout.py` contains the current graph
-  step-timeout probe.
+- The reliability mechanisms now have separate credential-free graph/runner
+  pairs instead of overwriting one playground: `graphs/` owns state, nodes,
+  policies, and compiled topology; `runners/` owns inputs, execution, and output
+  rendering. The deliberately failing tool is isolated in
+  `tools/deliberate_failure.py`.
 - The timeout probe places a 0.1-second graph deadline around a 0.5-second
   synchronous node. Runtime inspection showed the node finish at about 0.5
   seconds before `TimeoutError` reached the caller, with no streamed update. This
@@ -211,14 +211,15 @@ failure modes.
 
 ## Next action
 
-Continue the remaining Phase 1 survey with thin vertical probes rather than
-production-grade subsystems: revisit `runners/timeout.py` incrementally so its
-objects and mechanism are reconstructable, then inspect local rate-limit
-behavior; checkpointing with isolated thread IDs; and interrupt/resume. For each,
-frame the problem and meaningful experiment choice with the learner, implement
-the smallest runnable example, inspect its control/state behavior together, and
-stop once the mechanism is predictable unless a concrete failure requires a
-focused test.
+Resume the incremental walkthrough of `graphs/retry.py` exactly after explaining
+`RetryPolicy.max_interval`: the learner understands the state schema, graph
+factory, closure/nonlocal attempt counter, optional observation callback,
+simulated `ConnectionError`, node-attached retry policy, jitter, and why
+`initial_interval` and `max_interval` are both `0.1` for deterministic delays.
+Continue with the remaining retry execution/commit behavior and its runner, then
+walk through timeout behavior before local rate limiting, checkpointing with
+isolated thread IDs, and interrupt/resume. Keep each probe thin and stop once its
+behavior is predictable unless a concrete failure warrants a focused test.
 
 After the remaining mechanism groups, move to Deep Agents. Preserve useful
 probes as descriptively named runners rather than repeatedly overwriting a

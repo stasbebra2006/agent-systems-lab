@@ -1,22 +1,8 @@
-"""Inspect ToolNode behavior when valid tool execution raises an exception."""
+"""Run the tool-failure graph and display the escaped exception."""
 
 from langchain_core.messages import AIMessage
-from langchain_core.tools import tool
-from langgraph.graph import END, START, MessagesState, StateGraph
-from langgraph.prebuilt import ToolNode
 
-
-@tool
-def fail_deliberately(text: str) -> str:
-    """Raise an error after receiving valid tool arguments."""
-    raise ValueError(f"Tool failed while processing: {text}")
-
-
-builder = StateGraph(MessagesState)
-builder.add_node("tools", ToolNode([fail_deliberately]))
-builder.add_edge(START, "tools")
-builder.add_edge("tools", END)
-tool_failure_probe = builder.compile()
+from langgraph_learning.graphs.tool_failure import tool_failure_probe
 
 
 def main() -> None:
