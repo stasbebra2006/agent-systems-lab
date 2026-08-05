@@ -17,9 +17,9 @@ project suitable for a public GitHub portfolio.
 - Follow the interactive, one-change-at-a-time process documented in
   `docs/LEARNING_WORKFLOW.md`: the assistant implements and verifies each step,
   then pauses for learner review and acknowledgment.
-- Treat a dedicated interactive runner as part of completing each runnable
-  graph or protocol slice; use `runners/playground.py` only for temporary
-  inspection.
+- Treat a descriptively named interactive runner as part of completing each
+  runnable graph or protocol slice; temporary probes remain learner-facing and
+  useful ones should be preserved under mechanism-specific names.
 - Follow the persistent systems-thinking collaboration contract in
   `docs/memory/COLLABORATION.md`.
 - Prefer current official documentation and installed-package behavior when
@@ -169,11 +169,18 @@ failure modes.
   an error `ToolMessage` by default but re-raises exceptions from valid tool
   execution. The latter emits no completed `tools` update and escapes the graph
   boundary.
-- `src/langgraph_learning/runners/playground.py` currently contains the next thin
-  reliability probe: a node raises `ConnectionError` twice and succeeds on its
-  third attempt under an explicit three-attempt `RetryPolicy`. Runtime inspection
-  showed all three executions but only one streamed update, confirming that
-  failed attempts did not commit graph state.
+- The reliability mechanisms now have separate credential-free runners instead
+  of overwriting one playground: `runners/tool_failure.py` preserves the valid
+  tool-execution failure, `runners/retry.py` preserves the three-attempt
+  `RetryPolicy` probe, and `runners/timeout.py` contains the current graph
+  step-timeout probe.
+- The timeout probe places a 0.1-second graph deadline around a 0.5-second
+  synchronous node. Runtime inspection showed the node finish at about 0.5
+  seconds before `TimeoutError` reached the caller, with no streamed update. This
+  establishes that the superstep deadline invalidates the update but does not
+  forcibly stop already-running synchronous work; the code still needs to be
+  revisited incrementally with the learner because it was initially introduced
+  too quickly.
 - The dedicated tool-loop response view is complete for the current protocol:
   it unwraps each single-node streamed update and renders only a completed,
   nonempty `AIMessage` with no tool calls. Raw streamed updates remain visible
@@ -205,15 +212,14 @@ failure modes.
 ## Next action
 
 Continue the remaining Phase 1 survey with thin vertical probes rather than
-production-grade subsystems: finish timeout and local rate-limit behavior;
-checkpointing with isolated thread IDs; then interrupt/resume. For each, frame
-the problem and meaningful experiment choice with the learner, implement the
-smallest runnable example, inspect its control/state behavior together, and stop
-once the mechanism is predictable unless a concrete failure requires a focused
-test.
+production-grade subsystems: revisit `runners/timeout.py` incrementally so its
+objects and mechanism are reconstructable, then inspect local rate-limit
+behavior; checkpointing with isolated thread IDs; and interrupt/resume. For each,
+frame the problem and meaningful experiment choice with the learner, implement
+the smallest runnable example, inspect its control/state behavior together, and
+stop once the mechanism is predictable unless a concrete failure requires a
+focused test.
 
-Begin by choosing how to isolate and observe a credential-free timeout, then
-inspect local request pacing without intentionally provoking provider 429s.
-After the remaining mechanism groups, move to Deep Agents. Keep
-`runners/playground.py` as the ad hoc inspection file rather than replacing
-dedicated runners.
+After the remaining mechanism groups, move to Deep Agents. Preserve useful
+probes as descriptively named runners rather than repeatedly overwriting a
+playground.

@@ -1,4 +1,4 @@
-"""Editable workbench for ad hoc local inspection."""
+"""Inspect node retry attempts and committed graph updates."""
 
 from typing import TypedDict
 

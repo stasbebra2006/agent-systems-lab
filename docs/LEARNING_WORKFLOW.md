@@ -11,30 +11,37 @@ verification, and explains implementation details as needed.
 1. Inspect the current repository state before suggesting the next action.
 2. Frame the current problem: why it matters, concrete objects, ownership,
    constraints, known facts, and the unresolved question.
-3. At genuine design boundaries, ask the learner to propose a hypothesis,
+3. Reconstruct rather than merely state the design: traverse from the problem and
+   constraints through plausible mechanisms and trade-offs to the selected
+   behavior and its consequences. Separate what is logically necessary from what
+   is a framework-specific choice so the learner can derive and predict behavior
+   instead of memorizing conventions.
+4. At genuine design boundaries, ask the learner to propose a hypothesis,
    choose an experiment or trade-off, or predict the outcome. Offer compact
    options only when they clarify a real choice; do not turn mechanics into a
    quiz.
-4. Introduce one small concept or code change at a time.
-5. Prefer a vertical slice: attach the change to the smallest safe runnable
+5. Introduce one small concept or code change at a time.
+6. Prefer a vertical slice: attach the change to the smallest safe runnable
    path rather than building disconnected components for later assembly.
-6. Agree on the output, state transition, or test result that would distinguish
+7. Agree on the output, state transition, or test result that would distinguish
    the competing hypotheses or demonstrate success.
-7. Have the assistant handle repetitive inspection, implement the chosen change,
+8. Have the assistant handle repetitive inspection, implement the chosen change,
    and run it while making required imports, dependencies, files, and commands
    visible.
-8. Inspect the real code or output together; ask the learner to interpret what
+9. Inspect the real code or output together; ask the learner to interpret what
    it establishes before supplying the missing explanation.
-9. Pause at the next meaningful decision or evidence boundary, not merely for a
+10. Pause at the next meaningful decision or evidence boundary, not merely for a
    ceremonial acknowledgment.
-10. When surveying a low-level mechanism for intuition, stop after one thin
+11. When surveying a low-level mechanism for intuition, stop after one thin
     runnable probe and observable result unless a concrete failure justifies
     deeper engineering or tests.
 
 When an interactive graph or protocol reaches a working checkpoint, completing
-that slice includes a dedicated module under `src/langgraph_learning/runners/`
-so the learner can run and inspect it again. `runners/playground.py` is only a
-temporary workbench for ad hoc probes; it does not replace the stable runner.
+that slice includes a descriptively named module under
+`src/langgraph_learning/runners/` so the learner can run and inspect it again.
+Temporary probes are still learner-facing code: explain and introduce them
+incrementally rather than silently treating them as disposable internal
+diagnostics, and preserve useful probes under descriptive names.
 
 The assistant should not silently build ahead unless the learner explicitly
 asks for implementation. Commands that create or modify files, environments, or

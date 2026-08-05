@@ -27,6 +27,11 @@ template.
 
 - Explain each element through its function, interactions, and first- and
   second-order effects.
+- Optimize for reconstructable understanding rather than memorized conclusions:
+  traverse problem -> constraints -> candidate mechanisms -> design choice ->
+  observed behavior -> consequences. Distinguish necessary properties from
+  contingent conventions, and treat "it was designed this way" as a conclusion
+  that still requires a causal explanation.
 - Actively look for repeated patterns, hidden dependencies, shared mechanisms,
   contradictions, bottlenecks, missing links, and opportunities to synthesize
   ideas.

@@ -437,3 +437,18 @@
 - Eleven tests, compilation, lock consistency, Pyright, and whitespace passed.
   The next reliability decision is how to isolate and observe timeout behavior,
   followed by local rate limiting without intentionally provoking provider 429s.
+
+## 2026-08-05 — Reliability probes preserved as dedicated runners
+
+- Replaced the overwrite-oriented playground workflow with separate
+  `tool_failure.py`, `retry.py`, and `timeout.py` runners so each observed
+  mechanism remains directly executable.
+- Reconstructed the valid tool-execution failure probe from recorded behavior,
+  restored the committed retry probe, and retained the current synchronous
+  step-timeout probe under a descriptive name.
+- Executed all three credential-free runners: the tool exception escaped with no
+  update, retry produced three attempts and one successful update, and timeout
+  allowed synchronous work to finish before raising while discarding its update.
+- Corrected the learning process: temporary probes are learner-facing code and
+  must still be introduced incrementally. The next step is to revisit the timeout
+  runner's code before advancing to local rate limiting.
