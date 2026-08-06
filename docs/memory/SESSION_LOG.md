@@ -481,3 +481,22 @@
 - Stop point: continue the retry graph walkthrough immediately after
   `max_interval`, then inspect the retry runner and observed commit behavior.
   The graph/runner/tool reorganization is verified but remains uncommitted.
+
+## 2026-08-06 — Retry mechanism walkthrough complete
+
+- Completed the retry graph and runner walkthrough: distinguished nullable type
+  annotations from omittable default arguments and translated the runner's
+  attempt lambda into an ordinary callback function.
+- Reconstructed `stream(..., stream_mode="updates")` as iterator-driven graph
+  execution and confirmed the central evidence: three node invocations but only
+  one completed, committed, and streamed state update.
+- Explained the closure ownership chain: the compiled graph retains the nested
+  node function, which retains the factory's `attempt_count` and callback;
+  `nonlocal` is required only because the counter is rebound.
+- Traced `ConnectionError` through the node-attached retry policy: failed node
+  execution stops, LangGraph retries the same function after the configured
+  delay, and attempt three returns successfully. Exhausting all attempts would
+  let the final exception escape the stream.
+- Next step: walk through the final reliability probe, timeout. The learner has
+  an uncommitted edit in `runners/retry.py` adding an explicit typed initial
+  state; preserve it pending review.

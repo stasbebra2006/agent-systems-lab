@@ -1,6 +1,6 @@
 """Run the node-retry graph and display attempts and committed updates."""
 
-from langgraph_learning.graphs.retry import build_retry_probe
+from langgraph_learning.graphs.retry import RetryProbeState, build_retry_probe
 
 
 def main() -> None:
@@ -8,8 +8,10 @@ def main() -> None:
         on_attempt=lambda attempt: print(f"attempt {attempt}"),
     )
 
+    initial_state: RetryProbeState = {"result": "pending"}
+
     for update in retry_probe.stream(
-        {"result": "pending"},
+        initial_state,
         stream_mode="updates",
     ):
         print(f"streamed update: {update}")

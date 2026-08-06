@@ -211,15 +211,12 @@ failure modes.
 
 ## Next action
 
-Resume the incremental walkthrough of `graphs/retry.py` exactly after explaining
-`RetryPolicy.max_interval`: the learner understands the state schema, graph
-factory, closure/nonlocal attempt counter, optional observation callback,
-simulated `ConnectionError`, node-attached retry policy, jitter, and why
-`initial_interval` and `max_interval` are both `0.1` for deterministic delays.
-Continue with the remaining retry execution/commit behavior and its runner, then
-walk through timeout behavior before local rate limiting, checkpointing with
-isolated thread IDs, and interrupt/resume. Keep each probe thin and stop once its
-behavior is predictable unless a concrete failure warrants a focused test.
+The tool-failure and retry walkthroughs are complete. Next, inspect the last of
+the three reliability probes, `graphs/timeout.py` with `runners/timeout.py`, from
+its concrete objects and execution flow through the observed timeout semantics.
+Then continue to local rate limiting, checkpointing with isolated thread IDs,
+and interrupt/resume. Keep each probe thin and stop once its behavior is
+predictable unless a concrete failure warrants a focused test.
 
 After the remaining mechanism groups, move to Deep Agents. Preserve useful
 probes as descriptively named runners rather than repeatedly overwriting a
